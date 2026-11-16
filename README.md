@@ -4,6 +4,22 @@
 
 ---
 
+## 🚀 빠른 시작
+
+### 온라인 플레이 (추천)
+```
+🌐 배포 URL: https://war-of-spacex.pages.dev
+(자동 배포 예정 - 아래 배포 가이드 참고)
+```
+
+### 로컬 플레이
+```bash
+node server.js
+# 브라우저에서 http://localhost:8080 접속
+```
+
+---
+
 ## 🌌 스토리 및 세계관
 일론 머스크의 **X 코퍼레이션**은 심우주(지구-화성 간 전진 궤도)에 인류 사상 최대 규모의 **초지능 오비탈 슈퍼 데이터센터 (X-AeroNet)**를 건설했습니다.  
 이 데이터센터는 인류의 우주 개척, 스타링크 통신망, 차세대 분산 인공지능을 총괄하는 핵심 전략 거점입니다.
@@ -61,20 +77,73 @@ Node.js 내장 WebSocket 서버 기반의 초저지연 실시간 멀티플레이
 | **Space / 좌클릭** | **주무장 레이저** | 트윈 레이저(수비) / 대구경 디스럽터(공격) — 키보드 Space 또는 마우스 좌클릭으로 발사 |
 | **우클릭 / F** | **보조 미사일/어뢰** | 호밍 미사일 요격(수비) / 공성 폭발 어뢰(공격) |
 | **C** | **하강 (Down)** | 기체 하강 버니어 추진 |
+| **Z** | **상승 (Up)** | 기체 상승 버니어 추진 |
 | **R** | **기지 상호작용** | 나노봇 기지 수리(수비) / 기지 쉴드 해킹 및 약탈(공격) |
 | **X** | **특수 스킬** | EMP 충격파 방출(수비) / 클러스터 폭발탄 4연발(공격) |
 | **U** | **엔지니어링 상점** | 기체 업그레이드 및 스타링크 위성 배치 |
 | **V** | **시점 전환** | 1인칭 조종석 뷰 ↔ 3인칭 추적 뷰 전환 |
+| **P / ESC** | **일시 정지** | 게임 일시 정지 및 진영 전환 |
+| **M** | **음소거 토글** | 사운드 온/오프 |
 
 ---
 
-## 🚀 온라인 서버 실행 방법
+## 📡 배포 가이드
 
-터미널에서 Node.js 통합 서버(`server.js`)를 실행하면 웹 게임과 실시간 멀티플레이 웹소켓 서버가 함께 구동됩니다:
+### 🚀 온라인 배포 (권장)
+
+#### Option 1: Cloudflare Pages (추천) ⭐⭐⭐
+**가장 간단한 방법 - 5분 내 배포**
+
+1. https://dash.cloudflare.com 로그인
+2. **Pages** → **Create a project** → **Connect to Git**
+3. GitHub 연결 후 `matzipcom/War-of-SpaceX` 선택
+4. 설정:
+   - Build command: (빈칸)
+   - Build output directory: `public`
+5. **Save and Deploy** 클릭
+
+완료! 배포 URL: `https://war-of-spacex.pages.dev`
+
+#### Option 2: Railway + Cloudflare Pages (최적) ⭐⭐⭐⭐
+프론트엔드는 Cloudflare Pages, 백엔드는 Railway에 배포하여 완벽한 멀티플레이 지원
+
+[상세 배포 가이드](./DEPLOYMENT_GUIDE.md) 참고
+
+### 💻 로컬 서버 실행
 
 ```bash
+# 저장소 클론
+git clone https://github.com/matzipcom/War-of-SpaceX.git
+cd War-of-SpaceX
+
+# 서버 실행
 node server.js
+
+# 브라우저 접속
+http://localhost:8080
 ```
 
-실행 후 브라우저에서 `http://localhost:8080`에 접속합니다.  
-다른 기기나 여러 브라우저 탭에서 접속하여 각각 **[수비팀]**과 **[공격팀]**을 선택하면 실시간 대전을 즐길 수 있습니다.
+---
+
+## 📚 배포 및 언어 문서
+
+- **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** - 전체 배포 가이드 (5가지 옵션)
+- **[DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md)** - 배포 체크리스트
+- **[CLOUDFLARE_DEPLOYMENT.md](./CLOUDFLARE_DEPLOYMENT.md)** - Cloudflare 기본 가이드
+- **[LANGUAGE_SETUP.md](./LANGUAGE_SETUP.md)** - 언어 시스템 설명
+
+---
+
+## 🌐 온라인 플레이 방법
+
+배포 후 게임 시작:
+
+1. **배포 URL 접속** (예: https://war-of-spacex.pages.dev)
+2. **팀 선택**: DEFENSE 또는 ATTACK
+3. **플레이어명 입력** (선택사항)
+4. **게임 시작**
+
+### 멀티플레이 테스트
+- 같은 URL을 2개 이상의 브라우저 탭/창에서 열기
+- 각각 다른 팀 선택
+- 실시간 3D 대전 시작!
