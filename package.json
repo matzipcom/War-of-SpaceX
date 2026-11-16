@@ -1,0 +1,16 @@
+{
+  "name": "war-of-spacex",
+  "version": "1.0.0",
+  "description": "War of SpaceX - Orbital Multiplayer Combat Game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "deploy": "wrangler pages deploy ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "wrangler": "^4.162.0"
+  }
+}
