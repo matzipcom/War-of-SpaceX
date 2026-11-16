@@ -51,6 +51,20 @@ const TRANSLATIONS = {
         // Status Messages
         'settings_applied': '⚙️ Settings applied!',
         'language_changed': '🌐 Language changed to English.',
+
+        // Shop
+        'shop': '🛒 Shop',
+        'shop_title': 'UPGRADE SHOP',
+        'shop_subtitle': 'Spend gold earned by defeating enemies | Gold:',
+        'shop_buy': 'BUY',
+        'shop_close': 'BACK TO MENU',
+        'shop_bullet': 'Bullet Damage',
+        'shop_bullet_desc': 'Increases laser bullet damage.',
+        'shop_missile': 'Homing Missile Damage',
+        'shop_missile_desc': 'Increases homing missile / torpedo damage.',
+        'shop_hull': 'Max Hull',
+        'shop_hull_desc': 'Increases your spaceship max hull.',
+        'enemy_killed': '☠️ Enemy destroyed!',
     },
     ko: {
         // Start Screen
@@ -100,6 +114,20 @@ const TRANSLATIONS = {
         // Status Messages
         'settings_applied': '⚙️ 설정이 적용되었습니다!',
         'language_changed': '🌐 언어가 한국어로 변경되었습니다.',
+
+        // Shop
+        'shop': '🛒 상점',
+        'shop_title': '업그레이드 상점',
+        'shop_subtitle': '적을 처치해 모은 골드로 능력을 구매하세요 | 보유 골드:',
+        'shop_buy': '구매',
+        'shop_close': '메뉴로 돌아가기',
+        'shop_bullet': '총알 데미지 증가',
+        'shop_bullet_desc': '레이저 총알의 데미지를 증가시킵니다.',
+        'shop_missile': '유도 미사일 데미지 증가',
+        'shop_missile_desc': '유도 미사일/어뢰의 데미지를 증가시킵니다.',
+        'shop_hull': '우주선 최대 체력 증가',
+        'shop_hull_desc': '우주선의 최대 체력을 증가시킵니다.',
+        'enemy_killed': '☠️ 적 처치!',
     },
     ja: {
         'title': 'WAR OF SPACEX',
@@ -115,6 +143,20 @@ const TRANSLATIONS = {
         'attack_btn': '攻撃開始',
         'settings_title': '⚙️ 設定',
         'language_changed': '🌐 言語が日本語に変更されました。',
+
+        // Shop
+        'shop': '🛒 ショップ',
+        'shop_title': 'アップグレードショップ',
+        'shop_subtitle': '敵を倒して貯めたゴールドで強化 | 所持ゴールド:',
+        'shop_buy': '購入',
+        'shop_close': 'メニューに戻る',
+        'shop_bullet': '弾丸ダメージ増加',
+        'shop_bullet_desc': 'レーザー弾のダメージを増加します。',
+        'shop_missile': '誘導ミサイルダメージ増加',
+        'shop_missile_desc': '誘導ミサイル/魚雷のダメージを増加します。',
+        'shop_hull': '最大体力増加',
+        'shop_hull_desc': '宇宙船の最大体力を増加します。',
+        'enemy_killed': '☠️ 敵を撃破!',
     },
     zh: {
         'title': 'WAR OF SPACEX',
@@ -130,6 +172,20 @@ const TRANSLATIONS = {
         'attack_btn': '进攻基地',
         'settings_title': '⚙️ 设置',
         'language_changed': '🌐 语言已更改为中文。',
+
+        // Shop
+        'shop': '🛒 商店',
+        'shop_title': '升级商店',
+        'shop_subtitle': '使用击败敌人获得的金币强化 | 持有金币:',
+        'shop_buy': '购买',
+        'shop_close': '返回菜单',
+        'shop_bullet': '子弹伤害提升',
+        'shop_bullet_desc': '提升激光子弹的伤害。',
+        'shop_missile': '导弹伤害提升',
+        'shop_missile_desc': '提升制导导弹/鱼雷的伤害。',
+        'shop_hull': '最大生命提升',
+        'shop_hull_desc': '提升飞船的最大生命值。',
+        'enemy_killed': '☠️ 击败敌人!',
     }
 };
 
@@ -182,11 +238,13 @@ class Game {
         this.isWaveTransitioning = false;
         this.sessionTime = 300; // 5 minutes
         this.sessionMaxTime = 300;
-        this.score = 0;
-        this.credits = 0;
+        this.goldEarned = 0;
         this.enemiesDestroyed = 0;
         this.torpedoesIntercepted = 0;
         this.totalRepairs = 0;
+
+        // Persistent gold & shop upgrade levels
+        this.loadShopData();
 
         // Track stats locally
         this.playerKills = 0;
@@ -222,16 +280,6 @@ class Game {
             repairRate: 40, // HP per second repaired to Data Center
             repairRange: 320,
             isRepairing: false
-        };
-
-        // Upgrades Levels
-        this.upgrades = {
-            laser: 1,
-            defense: 1,
-            missiles: 1,
-            repair: 1,
-            satellites: 0,
-            emp: 1
         };
 
         // Base (Data Center) Stats
@@ -341,8 +389,8 @@ class Game {
             this.playerStats.laserDamage = 25;
             this.playerStats.maxSpeed = 85;
             this.playerStats.boostSpeed = 145;
-            this.playerStats.maxHull = 100;
-            this.playerStats.hull = 100;
+            this.playerStats.maxHull = 100 + this.getShopBonus('hull');
+            this.playerStats.hull = this.playerStats.maxHull;
         } else {
             // ATTACK: Syndicate Dread Bomber
             if (defenseStats) defenseStats.classList.add('hidden');
@@ -354,8 +402,8 @@ class Game {
             this.playerStats.laserDamage = 38;
             this.playerStats.maxSpeed = 75;
             this.playerStats.boostSpeed = 130;
-            this.playerStats.maxHull = 150;
-            this.playerStats.hull = 150;
+            this.playerStats.maxHull = 150 + this.getShopBonus('hull');
+            this.playerStats.hull = this.playerStats.maxHull;
         }
         this.scene.add(this.player);
     }
@@ -446,7 +494,6 @@ class Game {
             if (code === 'KeyF') this.launchPlayerMissile();
             if (code === 'KeyX') this.triggerEMP();
             if (code === 'KeyV') this.toggleCameraView();
-            if (code === 'KeyU') this.toggleUpgradeModal();
             if (code === 'KeyM') this.toggleAudio();
             if (code === 'Escape') this.showTeamSwitchUI();
         });
@@ -478,11 +525,14 @@ class Game {
         });
         document.getElementById('restart-btn')?.addEventListener('click', () => this.restartGame());
         document.getElementById('victory-restart-btn')?.addEventListener('click', () => this.continueEndless());
+        // Reloading returns to the main menu with a clean connection; gold and shop levels persist in localStorage
+        document.getElementById('gameover-menu-btn')?.addEventListener('click', () => location.reload());
+        document.getElementById('victory-menu-btn')?.addEventListener('click', () => location.reload());
         document.getElementById('resume-btn')?.addEventListener('click', () => document.getElementById('pause-screen').classList.add('hidden'));
         document.getElementById('pause-switch-defense-btn')?.addEventListener('click', () => this.switchTeam('DEFENSE'));
         document.getElementById('pause-switch-attack-btn')?.addEventListener('click', () => this.switchTeam('ATTACK'));
-        document.getElementById('open-upgrade-btn')?.addEventListener('click', () => this.toggleUpgradeModal(true));
-        document.getElementById('close-upgrade-btn')?.addEventListener('click', () => this.toggleUpgradeModal(false));
+        document.getElementById('open-shop-btn')?.addEventListener('click', () => this.toggleShopModal(true));
+        document.getElementById('close-shop-btn')?.addEventListener('click', () => this.toggleShopModal(false));
         document.getElementById('sound-toggle-btn')?.addEventListener('click', () => this.toggleAudio());
         document.getElementById('repair-action-btn')?.addEventListener('mousedown', () => { this.input.repair = true; });
         document.getElementById('repair-action-btn')?.addEventListener('mouseup', () => { this.input.repair = false; });
@@ -509,8 +559,8 @@ class Game {
             });
         });
 
-        // Setup Upgrade Shop Click Handlers
-        this.initUpgradeShopUI();
+        this.renderShop();
+        this.updateGoldDisplay();
     }
 
     // Toggle Camera View (V key)
@@ -619,6 +669,8 @@ class Game {
                 el.textContent = text;
             }
         });
+
+        this.renderShop();
         
         // Update language selector value
         const langSelect = document.getElementById('language-select');
@@ -710,8 +762,7 @@ class Game {
 
         // Reset player & base stats
         this.wave = 1;
-        this.score = 0;
-        this.credits = 0;
+        this.goldEarned = 0;
         this.enemiesDestroyed = 0;
         this.torpedoesIntercepted = 0;
         this.totalRepairs = 0;
@@ -856,21 +907,6 @@ class Game {
         }
     }
 
-    // Upgrade Modal Toggle
-    toggleUpgradeModal(forceOpen = null) {
-        const modal = document.getElementById('upgrade-modal');
-        if (!modal) return;
-        const isOpen = !modal.classList.contains('hidden');
-        const shouldOpen = forceOpen !== null ? forceOpen : !isOpen;
-
-        if (shouldOpen) {
-            modal.classList.remove('hidden');
-            this.updateUpgradeShopUI();
-        } else {
-            modal.classList.add('hidden');
-        }
-    }
-
     // Spawn Waves of Syndicate Attackers (Removed for pure PVP)
     spawnWave(waveNum) {
     }
@@ -942,7 +978,7 @@ class Game {
         const aimTarget = this.getAimTarget();
         const isAttack = this.playerTeam === 'ATTACK';
         const laserColor = isAttack ? 0xff1144 : 0x00f0ff;
-        const damage = isAttack ? 38 : this.playerStats.laserDamage;
+        const damage = Math.round((isAttack ? 38 : this.playerStats.laserDamage) * (1 + this.getShopBonus('bullet')));
 
         // Twin wingtip blaster positions
         [-14, 14].forEach(offset => {
@@ -993,8 +1029,9 @@ class Game {
 
         const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.player.quaternion);
 
+        const missileDamage = Math.round(220 * (1 + this.getShopBonus('missile')));
+
         if (this.playerTeam === 'ATTACK') {
-            // ATTACK TEAM: Launch Heavy Orbital Siege Torpedo targeting Data Center!
             const mesh = this.models.createMissile(true);
             mesh.position.copy(this.player.position).add(forward.clone().multiplyScalar(10));
             mesh.quaternion.copy(this.player.quaternion);
@@ -1010,19 +1047,33 @@ class Game {
                 turnRate: 2.0,
                 targetPos: new THREE.Vector3(0, 0, 0),
                 life: 16.0,
-                damage: 220,
+                damage: missileDamage,
                 isTorpedo: true
             });
 
             if (this.network) {
-                this.network.broadcastMissile(this.player.position, forward, true, { x: 0, y: 0, z: 0 }, 220);
+                this.network.broadcastMissile(this.player.position, forward, true, { x: 0, y: 0, z: 0 }, missileDamage);
             }
             if (window.soundFX) window.soundFX.missileLaunch();
             this.showCombatBanner('💣 공성 대형 폭발 어뢰 발사! 데이터센터 타격 궤도 진입!');
             return;
         }
 
-        // DEFENSE TEAM: Launch Straight Anti-Fighter Missile
+        // DEFENSE TEAM: Launch Homing Anti-Fighter Missile locked onto the closest enemy player in front
+        let targetId = null;
+        let bestDist = 1500;
+        if (this.network) {
+            for (const [id, rp] of this.network.remotePlayers) {
+                if (rp.team === this.playerTeam) continue;
+                const toTarget = rp.mesh.position.clone().sub(this.player.position);
+                const dist = toTarget.length();
+                if (dist < bestDist && toTarget.normalize().dot(forward) > 0.5) {
+                    bestDist = dist;
+                    targetId = id;
+                }
+            }
+        }
+
         const mesh = this.models.createMissile(false);
         mesh.position.copy(this.player.position).add(forward.clone().multiplyScalar(10));
         mesh.quaternion.copy(this.player.quaternion);
@@ -1030,17 +1081,19 @@ class Game {
 
         this.missiles.push({
             isEnemy: false,
+            isLocalPlayerMissile: true,
             mesh: mesh,
-            vel: forward.clone().multiplyScalar(260), // Fixed straight velocity
+            vel: forward.clone().multiplyScalar(260),
             speed: 260,
-            turnRate: 0, // No homing, straight path
-            target: null,
+            turnRate: 4.0,
+            targetId: targetId,
             life: 5.0,
-            damage: 220
+            damage: missileDamage
         });
 
         if (this.network) {
-            this.network.broadcastMissile(this.player.position, forward, false, target ? target.mesh.position : null, 220);
+            const targetRp = targetId ? this.network.remotePlayers.get(targetId) : null;
+            this.network.broadcastMissile(this.player.position, forward, false, targetRp ? targetRp.mesh.position : null, missileDamage);
         }
         if (window.soundFX) window.soundFX.missileLaunch();
         this.showCombatBanner('🚀 호밍 미사일 발사!');
@@ -1133,7 +1186,6 @@ class Game {
                 this.scene.remove(m.mesh);
                 this.missiles.splice(i, 1);
                 this.torpedoesIntercepted++;
-                this.credits += 30;
             }
         }
 
@@ -1384,7 +1436,6 @@ class Game {
                     } else {
                         this.baseStats.hull = Math.max(0, this.baseStats.hull - dmg);
                     }
-                    this.credits += Math.floor(20 * dt);
                     this.particles.spawnExplosion(this.player.position, 0.2);
 
                     if (this.network) this.network.broadcastDamageBase(dmg);
@@ -1410,7 +1461,6 @@ class Game {
                     const healAmt = this.playerStats.repairRate * dt;
                     this.baseStats.hull = Math.min(this.baseStats.maxHull, this.baseStats.hull + healAmt);
                     this.totalRepairs += healAmt;
-                    this.credits += Math.floor(healAmt * 0.5);
 
                     this.particles.spawnRepairStream(this.player.position, this.dataCenter.position);
                     if (window.soundFX) window.soundFX.setRepairBeamActive(true);
@@ -1588,12 +1638,7 @@ class Game {
                             targetId: id,
                             damage: l.damage
                         });
-                        this.credits += 25;
-                        this.score += 250;
-                        if (this.playerTeam === 'DEFENSE') {
-                            this.playerKills++;
-                        }
-                        this.showCombatBanner(`적 플레이어 [${rp.name}] 명중! +$25`);
+                        this.showCombatBanner(`적 플레이어 [${rp.name}] 명중!`);
                         break;
                     }
                 }
@@ -1610,9 +1655,7 @@ class Game {
                         this.scene.remove(m.mesh);
                         this.missiles.splice(j, 1);
                         this.torpedoesIntercepted++;
-                        this.credits += 40;
-                        this.score += 300;
-                        this.showCombatBanner('🎯 적 어뢰 요격 성공! (TORPEDO INTERCEPTED) +$40');
+                        this.showCombatBanner('🎯 적 어뢰 요격 성공! (TORPEDO INTERCEPTED)');
                         break;
                     }
                 }
@@ -1676,6 +1719,16 @@ class Game {
                 m.mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), m.vel.clone().normalize());
             }
 
+            // Homing for the local player's missile toward its locked enemy player
+            if (m.isLocalPlayerMissile && m.targetId && this.network) {
+                const lockedRp = this.network.remotePlayers.get(m.targetId);
+                if (lockedRp) {
+                    const desired = lockedRp.mesh.position.clone().sub(m.mesh.position).normalize().multiplyScalar(m.speed);
+                    m.vel.lerp(desired, Math.min(1, dt * m.turnRate));
+                    m.mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), m.vel.clone().normalize());
+                }
+            }
+
             m.mesh.position.addScaledVector(m.vel, dt);
 
             // Smoke trail particle
@@ -1710,6 +1763,19 @@ class Game {
                         break;
                     }
                 }
+
+                // Check local player's missile impact on enemy players
+                if (!exploded && m.isLocalPlayerMissile && this.network) {
+                    for (const [id, rp] of this.network.remotePlayers) {
+                        if (rp.team !== this.playerTeam && m.mesh.position.distanceTo(rp.mesh.position) < 22) {
+                            exploded = true;
+                            this.particles.spawnExplosion(m.mesh.position, 1.6);
+                            if (window.soundFX) window.soundFX.explosion(true);
+                            this.network.send({ type: 'HIT_PLAYER', targetId: id, damage: m.damage });
+                            break;
+                        }
+                    }
+                }
             }
 
             if (exploded || m.life <= 0) {
@@ -1720,7 +1786,8 @@ class Game {
     }
 
     // Damage Player Ship
-    damagePlayer(amount) {
+    damagePlayer(amount, attackerId = null) {
+        if (attackerId) this.lastAttackerId = attackerId;
         if (this.playerStats.shield > 0) {
             this.playerStats.shield = Math.max(0, this.playerStats.shield - amount);
             if (this.player.shieldMesh) {
@@ -1735,6 +1802,11 @@ class Game {
         }
 
         if (this.playerStats.hull <= 0 && this.state === 'PLAYING') {
+            // Tell the server who gets the kill reward
+            if (this.network && this.lastAttackerId) {
+                this.network.send({ type: 'PLAYER_KILLED', killerId: this.lastAttackerId });
+                this.lastAttackerId = null;
+            }
             this.gameOver('플레이어 함선이 파괴되었습니다.');
         }
     }
@@ -1788,9 +1860,7 @@ class Game {
                     this.baseStats.shield = Math.min(this.baseStats.maxShield, this.baseStats.shield + 150);
                     this.showCombatBanner('🛡️ 실드 에너지 충전 셀 획득! 실드 완충!');
                 } else {
-                    this.credits += 75;
-                    this.score += 500;
-                    this.showCombatBanner('💎 서버 데이터 큐브 회수! +$75 크레딧');
+                    this.showCombatBanner('💎 서버 데이터 큐브 회수!');
                 }
 
                 if (window.soundFX) window.soundFX.upgrade();
@@ -2041,12 +2111,6 @@ class Game {
             }
         }
 
-        // Credits & Score
-        const creditText = document.getElementById('credits-text');
-        const scoreText = document.getElementById('score-text');
-        if (creditText) creditText.innerText = `$${this.credits}`;
-        if (scoreText) scoreText.innerText = `SCORE: ${this.score}`;
-
         // Faction Scoreboard Update
         const killsText = document.getElementById('kills-text');
         const damageText = document.getElementById('damage-text');
@@ -2071,100 +2135,125 @@ class Game {
         banner.classList.add('fade');
     }
 
-    // Upgrade Shop System
-    initUpgradeShopUI() {
-        const buyBtns = document.querySelectorAll('.buy-upgrade-btn');
-        buyBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const type = btn.getAttribute('data-type');
-                this.purchaseUpgrade(type);
-            });
-        });
+    // Gold & Shop System (persistent across matches, bought from the main menu)
+    static get SHOP_ITEMS() {
+        return {
+            bullet: { icon: '🔫', baseCost: 300, perLevel: 0.10, max: 10 },
+            missile: { icon: '🚀', baseCost: 400, perLevel: 0.15, max: 10 },
+            hull: { icon: '🛡️', baseCost: 500, perLevel: 20, max: 10 }
+        };
     }
 
-    updateUpgradeShopUI() {
-        const creditDisplay = document.getElementById('modal-credits');
-        if (creditDisplay) creditDisplay.innerText = `$${this.credits}`;
-
-        const upgradesConfig = {
-            laser: { cost: this.upgrades.laser * 150, max: 5 },
-            defense: { cost: this.upgrades.defense * 160, max: 5 },
-            missiles: { cost: this.upgrades.missiles * 180, max: 5 },
-            repair: { cost: this.upgrades.repair * 200, max: 5 },
-            satellites: { cost: (this.upgrades.satellites + 1) * 300, max: 4 },
-            emp: { cost: this.upgrades.emp * 220, max: 4 }
-        };
-
-        for (let key in upgradesConfig) {
-            const conf = upgradesConfig[key];
-            const lvlEl = document.getElementById(`lvl-${key}`);
-            const costEl = document.getElementById(`cost-${key}`);
-            const btn = document.getElementById(`btn-${key}`);
-
-            if (lvlEl) lvlEl.innerText = `Lv.${this.upgrades[key]}`;
-
-            if (this.upgrades[key] >= conf.max) {
-                if (costEl) costEl.innerText = 'MAX';
-                if (btn) btn.classList.add('disabled');
-            } else {
-                if (costEl) costEl.innerText = `$${conf.cost}`;
-                if (btn) {
-                    if (this.credits >= conf.cost) {
-                        btn.classList.remove('disabled');
-                    } else {
-                        btn.classList.add('disabled');
-                    }
-                }
-            }
+    loadShopData() {
+        let saved = {};
+        try {
+            saved = JSON.parse(localStorage.getItem('war-of-spacex-shop') || '{}') || {};
+        } catch (e) {
+            saved = {};
+        }
+        this.gold = Math.max(0, Math.floor(Number(saved.gold) || 0));
+        this.shop = { bullet: 0, missile: 0, hull: 0 };
+        for (const key in this.shop) {
+            const lvl = Math.floor(Number(saved.levels && saved.levels[key]) || 0);
+            this.shop[key] = Math.min(Game.SHOP_ITEMS[key].max, Math.max(0, lvl));
         }
     }
 
-    purchaseUpgrade(type) {
-        const costs = {
-            laser: this.upgrades.laser * 150,
-            defense: this.upgrades.defense * 160,
-            missiles: this.upgrades.missiles * 180,
-            repair: this.upgrades.repair * 200,
-            satellites: (this.upgrades.satellites + 1) * 300,
-            emp: this.upgrades.emp * 220
-        };
+    saveShopData() {
+        localStorage.setItem('war-of-spacex-shop', JSON.stringify({ gold: this.gold, levels: this.shop }));
+    }
 
-        const cost = costs[type];
-        if (this.credits < cost) return;
+    // Damage multiplier bonus (bullet/missile) or flat max hull bonus
+    getShopBonus(type) {
+        return Game.SHOP_ITEMS[type].perLevel * this.shop[type];
+    }
 
-        this.credits -= cost;
-        this.upgrades[type]++;
+    // Each level costs 1.5x the previous one
+    getShopCost(type) {
+        const item = Game.SHOP_ITEMS[type];
+        return Math.round(item.baseCost * Math.pow(1.5, this.shop[type]) / 10) * 10;
+    }
 
-        // Apply Upgrade Effects
-        if (type === 'laser') {
-            this.playerStats.laserDamage += 12;
-            this.playerStats.laserCooldown = Math.max(0.08, this.playerStats.laserCooldown - 0.02);
-            this.showCombatBanner('⚡ 플라즈마 레이저 강화 완료! 공격력 및 연사속도 상승!');
-        } else if (type === 'defense') {
-            this.playerStats.maxShield += 40;
-            this.playerStats.shield = this.playerStats.maxShield;
-            this.playerStats.maxHull += 30;
+    addGold(amount) {
+        this.gold += amount;
+        this.goldEarned += amount;
+        this.saveShopData();
+        this.updateGoldDisplay();
+    }
+
+    // Called when the local player kills a remote enemy player
+    onEnemyKilled() {
+        this.enemiesDestroyed++;
+        this.playerKills++;
+        this.addGold(100);
+        this.showCombatBanner(`${t('enemy_killed')} +100 🪙`);
+    }
+
+    updateGoldDisplay() {
+        document.querySelectorAll('.gold-amount').forEach(el => { el.innerText = this.gold; });
+    }
+
+    toggleShopModal(open) {
+        const modal = document.getElementById('shop-modal');
+        if (!modal) return;
+        if (open) {
+            this.renderShop();
+            modal.classList.remove('hidden');
+        } else {
+            modal.classList.add('hidden');
+        }
+    }
+
+    renderShop() {
+        const grid = document.getElementById('shop-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        for (const type in Game.SHOP_ITEMS) {
+            const item = Game.SHOP_ITEMS[type];
+            const level = this.shop[type];
+            const maxed = level >= item.max;
+            const cost = this.getShopCost(type);
+            const fmt = (lvl) => type === 'hull' ? `+${item.perLevel * lvl} HP` : `+${Math.round(item.perLevel * lvl * 100)}%`;
+
+            const card = document.createElement('div');
+            card.className = 'upgrade-card';
+            card.innerHTML = `
+                <div>
+                    <div class="upgrade-header">
+                        <span>${item.icon} ${t('shop_' + type)}</span>
+                        <span>Lv.${level}${maxed ? ' (MAX)' : ''}</span>
+                    </div>
+                    <div class="upgrade-desc">${t('shop_' + type + '_desc')}<br>${fmt(level)}${maxed ? '' : ' → ' + fmt(level + 1)}</div>
+                </div>
+                <div class="upgrade-footer">
+                    <span class="upgrade-cost">${maxed ? 'MAX' : '🪙 ' + cost}</span>
+                    <button class="sci-btn hud-btn${maxed || this.gold < cost ? ' disabled' : ''}">${t('shop_buy')}</button>
+                </div>`;
+            card.querySelector('button').addEventListener('click', () => this.purchaseShopItem(type));
+            grid.appendChild(card);
+        }
+    }
+
+    purchaseShopItem(type) {
+        const item = Game.SHOP_ITEMS[type];
+        if (this.shop[type] >= item.max) return;
+        const cost = this.getShopCost(type);
+        if (this.gold < cost) return;
+
+        this.gold -= cost;
+        this.shop[type]++;
+        this.saveShopData();
+
+        if (type === 'hull') {
+            const base = this.playerTeam === 'ATTACK' ? 150 : 100;
+            this.playerStats.maxHull = base + this.getShopBonus('hull');
             this.playerStats.hull = this.playerStats.maxHull;
-            this.showCombatBanner('🛡️ 함선 방어막 & 선체 장갑 업그레이드 완료!');
-        } else if (type === 'missiles') {
-            this.playerStats.maxMissiles += 2;
-            this.playerStats.missiles = this.playerStats.maxMissiles;
-            this.playerStats.missileReloadTime = Math.max(2.0, this.playerStats.missileReloadTime - 0.5);
-            this.updateMissileHUD();
-            this.showCombatBanner('🚀 유도 미사일 포드 확장 완료! 최대 적재량 증가!');
-        } else if (type === 'repair') {
-            this.playerStats.repairRate += 30;
-            this.baseStats.shieldRegenRate += 10;
-            this.showCombatBanner('🔧 나노봇 수리 빔 출력 대폭 증강! 수리 속도 증가!');
-        } else if (type === 'satellites') {
-            this.addDefenseSatellite();
-        } else if (type === 'emp') {
-            this.playerStats.empCooldown = Math.max(12, this.playerStats.empCooldown - 4);
-            this.showCombatBanner('⚡ EMP 냉각 시스템 개조 완료! 재사용 대기시간 단축!');
         }
 
         if (window.soundFX) window.soundFX.upgrade();
-        this.updateUpgradeShopUI();
+        this.updateGoldDisplay();
+        this.renderShop();
     }
 
     // Game Over Trigger
@@ -2178,7 +2267,7 @@ class Game {
             격추한 적 함선: ${this.enemiesDestroyed}대<br>
             요격한 적 어뢰: ${this.torpedoesIntercepted}발<br>
             데이터센터 총 수리량: ${Math.round(this.totalRepairs)} HP<br>
-            최종 스코어: ${this.score}
+            획득 골드: ${this.goldEarned} 🪙
         `;
         // Resume polling when game ends
         this.startServerPolling();
@@ -2195,7 +2284,7 @@ class Game {
             격추한 적 함선: ${this.enemiesDestroyed}대<br>
             요격한 적 어뢰: ${this.torpedoesIntercepted}발<br>
             데이터센터 총 수리량: ${Math.round(this.totalRepairs)} HP<br>
-            최종 스코어: ${this.score}
+            획득 골드: ${this.goldEarned} 🪙
         `;
         // Resume polling when game ends
         this.startServerPolling();

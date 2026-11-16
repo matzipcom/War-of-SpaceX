@@ -38,8 +38,9 @@
                 ⚔️ Attack: <span id="online-attack-count">0</span>
             </div>
 
-            <!-- Settings Button -->
-            <div style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
+            <!-- Shop & Settings Buttons -->
+            <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <button id="open-shop-btn" class="sci-btn" style="font-size: 13px; padding: 6px 16px;"><span data-i18n="shop">🛒 Shop</span> <span style="color: #ffdd44;">🪙 <span class="gold-amount">0</span></span></button>
                 <button id="open-settings-btn" class="sci-btn" style="font-size: 13px; padding: 6px 16px;" data-i18n="settings">⚙️ Settings</button>
             </div>
 
@@ -121,8 +122,7 @@
         <!-- TOP LEFT: CREDITS & UPGRADES -->
         <div class="top-left-hud">
             <div class="credit-box glass-panel">
-                <span id="credits-text">$0</span>
-                <span id="score-text">SCORE: 0</span>
+                <span>🪙 <span class="gold-amount">0</span></span>
             </div>
             <!-- Scoreboard for Factions -->
             <div id="faction-scoreboard" class="glass-panel" style="margin-top: 8px; padding: 10px; border-left: 4px solid #00f0ff;">
@@ -144,7 +144,6 @@
                     <div style="color: #aaa;">선수 데이터 동기화 중...</div>
                 </div>
             </div>
-            <button id="open-upgrade-btn" class="sci-btn hud-btn">🛠️ 장비 업그레이드 [U]</button>
             <button id="sound-toggle-btn" class="sci-btn hud-btn">🔊 사운드 ON</button>
         </div>
 
@@ -212,105 +211,15 @@
         <button id="touch-emp" class="sci-btn">💥 EMP</button>
     </div>
 
-    <!-- 3. UPGRADE TERMINAL MODAL -->
-    <div id="upgrade-modal" class="overlay-screen hidden">
+    <!-- 3. SHOP MODAL (main menu) -->
+    <div id="shop-modal" class="overlay-screen hidden">
         <div class="menu-card glass-panel">
-            <h2 class="title-glow" style="font-size: 28px;">SPACEX ENGINEERING TERMINAL</h2>
-            <div class="subtitle">데이터센터 방어 장비 업그레이드 | 보유 크레딧: <span id="modal-credits" style="color: #ffdd44;">$0</span></div>
+            <h2 class="title-glow" style="font-size: 28px;" data-i18n="shop_title">UPGRADE SHOP</h2>
+            <div class="subtitle"><span data-i18n="shop_subtitle">Spend gold earned by defeating enemies | Gold:</span> <span style="color: #ffdd44;">🪙 <span class="gold-amount">0</span></span></div>
 
-            <div class="upgrade-grid">
-                <!-- 1. Laser -->
-                <div class="upgrade-card">
-                    <div>
-                        <div class="upgrade-header">
-                            <span>플라즈마 레이저 강화</span>
-                            <span id="lvl-laser">Lv.1</span>
-                        </div>
-                        <div class="upgrade-desc">트윈 레이저의 데미지와 연사 속도를 강화하여 적 함선을 더 빠르게 파괴합니다.</div>
-                    </div>
-                    <div class="upgrade-footer">
-                        <span id="cost-laser" class="upgrade-cost">$150</span>
-                        <button id="btn-laser" class="sci-btn hud-btn buy-upgrade-btn" data-type="laser">강화</button>
-                    </div>
-                </div>
+            <div id="shop-grid" class="upgrade-grid"></div>
 
-                <!-- 2. Ship Shields -->
-                <div class="upgrade-card">
-                    <div>
-                        <div class="upgrade-header">
-                            <span>함선 쉴드 & 장갑 증설</span>
-                            <span id="lvl-defense">Lv.1</span>
-                        </div>
-                        <div class="upgrade-desc">전투기의 최대 선체 내구도와 쉴드 용량을 증가시켜 생존성을 향상합니다.</div>
-                    </div>
-                    <div class="upgrade-footer">
-                        <span id="cost-defense" class="upgrade-cost">$160</span>
-                        <button id="btn-defense" class="sci-btn hud-btn buy-upgrade-btn" data-type="defense">강화</button>
-                    </div>
-                </div>
-
-                <!-- 3. Missiles -->
-                <div class="upgrade-card">
-                    <div>
-                        <div class="upgrade-header">
-                            <span>호밍 미사일 포드 확장</span>
-                            <span id="lvl-missiles">Lv.1</span>
-                        </div>
-                        <div class="upgrade-desc">미사일 최대 적재량을 증가시키고 재장전 시간을 단축합니다.</div>
-                    </div>
-                    <div class="upgrade-footer">
-                        <span id="cost-missiles" class="upgrade-cost">$180</span>
-                        <button id="btn-missiles" class="sci-btn hud-btn buy-upgrade-btn" data-type="missiles">강화</button>
-                    </div>
-                </div>
-
-                <!-- 4. Repair Nanites -->
-                <div class="upgrade-card">
-                    <div>
-                        <div class="upgrade-header">
-                            <span>나노봇 수리 빔 증폭</span>
-                            <span id="lvl-repair">Lv.1</span>
-                        </div>
-                        <div class="upgrade-desc">데이터센터에 조사하는 나노봇 수리 속도(초당 HP 회복량)를 대폭 증폭합니다.</div>
-                    </div>
-                    <div class="upgrade-footer">
-                        <span id="cost-repair" class="upgrade-cost">$200</span>
-                        <button id="btn-repair" class="sci-btn hud-btn buy-upgrade-btn" data-type="repair">강화</button>
-                    </div>
-                </div>
-
-                <!-- 5. Starlink Satellites -->
-                <div class="upgrade-card">
-                    <div>
-                        <div class="upgrade-header">
-                            <span>스타링크 방어 위성 배치</span>
-                            <span id="lvl-satellites">Lv.0</span>
-                        </div>
-                        <div class="upgrade-desc">데이터센터 주변 궤도를 공전하며 침입하는 적에게 자동으로 레이저를 사격하는 위성을 배치합니다. (최대 4기)</div>
-                    </div>
-                    <div class="upgrade-footer">
-                        <span id="cost-satellites" class="upgrade-cost">$300</span>
-                        <button id="btn-satellites" class="sci-btn hud-btn buy-upgrade-btn" data-type="satellites">배치</button>
-                    </div>
-                </div>
-
-                <!-- 6. EMP Overcharge -->
-                <div class="upgrade-card">
-                    <div>
-                        <div class="upgrade-header">
-                            <span>EMP 냉각 가속기</span>
-                            <span id="lvl-emp">Lv.1</span>
-                        </div>
-                        <div class="upgrade-desc">적 어뢰 요격 및 적 함선을 무력화하는 EMP 충격파의 재사용 대기시간을 단축합니다.</div>
-                    </div>
-                    <div class="upgrade-footer">
-                        <span id="cost-emp" class="upgrade-cost">$220</span>
-                        <button id="btn-emp" class="sci-btn hud-btn buy-upgrade-btn" data-type="emp">강화</button>
-                    </div>
-                </div>
-            </div>
-
-            <button id="close-upgrade-btn" class="sci-btn">전투 복귀 (RETURN TO COMBAT)</button>
+            <button id="close-shop-btn" class="sci-btn" data-i18n="shop_close">BACK TO MENU</button>
         </div>
     </div>
 
@@ -350,6 +259,7 @@
             <div id="gameover-reason" class="subtitle" style="color: #ff8899;">데이터센터가 파괴되었습니다.</div>
             <div id="go-stats" class="story-box" style="text-align: center; border-color: #ff3355;"></div>
             <button id="restart-btn" class="sci-btn" style="background: linear-gradient(135deg, rgba(255, 34, 68, 0.4), rgba(150, 0, 30, 0.6)); border-color: #ff3355;">작전 재도전 (RETRY MISSION)</button>
+            <button id="gameover-menu-btn" class="sci-btn" style="margin-top: 10px;">🏠 메인 메뉴 / 상점 (MAIN MENU)</button>
         </div>
     </div>
 
@@ -360,6 +270,7 @@
             <div class="subtitle" style="color: #88ffcc;">머스크 우주 데이터센터 수호 성공!</div>
             <div id="vic-stats" class="story-box" style="text-align: center; border-color: #00ff88;"></div>
             <button id="victory-restart-btn" class="sci-btn" style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.4), rgba(0, 150, 80, 0.6)); border-color: #00ff88;">무한 방어전 시작 (ENDLESS MODE)</button>
+            <button id="victory-menu-btn" class="sci-btn" style="margin-top: 10px;">🏠 메인 메뉴 / 상점 (MAIN MENU)</button>
         </div>
     </div>
 
@@ -417,7 +328,7 @@
                         • <b style="color:#00f0ff;">R</b>: Interact with Base<br>
                         • <b style="color:#00f0ff;">X</b>: Special Ability<br>
                         • <b style="color:#00f0ff;">V</b>: Switch Camera View<br>
-                        • <b style="color:#00f0ff;">U</b>: Upgrade Shop
+                        • <b style="color:#00f0ff;">ESC</b>: Switch Team
                     </div>
                 </div>
             </div>

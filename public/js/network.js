@@ -130,7 +130,14 @@ class NetworkManager {
 
             case 'PLAYER_HIT': {
                 if (msg.targetId === this.playerId) {
-                    this.game.damagePlayer(msg.damage);
+                    this.game.damagePlayer(msg.damage, msg.attackerId);
+                }
+                break;
+            }
+
+            case 'KILL_CREDIT': {
+                if (msg.killerId === this.playerId) {
+                    this.game.onEnemyKilled();
                 }
                 break;
             }

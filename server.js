@@ -392,6 +392,17 @@ function handlePlayerMessage(socket, player, msg) {
             break;
         }
 
+        case 'PLAYER_KILLED': {
+            if (msg.killerId && msg.killerId !== player.id) {
+                broadcast({
+                    type: 'KILL_CREDIT',
+                    killerId: msg.killerId,
+                    victimId: player.id
+                });
+            }
+            break;
+        }
+
         case 'EMP_BLAST': {
             broadcast({
                 type: 'EMP_BLAST',
