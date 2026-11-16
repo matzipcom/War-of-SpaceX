@@ -5,9 +5,9 @@
   "main": "src/worker.js",
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "build": "wrangler publish"
+    "dev": "wrangler pages dev public",
+    "deploy": "wrangler pages deploy public",
+    "build": "echo 'No build step: static files are served from public/'"
   },
   "dependencies": {},
   "devDependencies": {

@@ -1,20 +1,5 @@
 name = "war-of-spacex"
-type = "javascript"
-account_id = ""
-workers_dev = true
-route = ""
-zone_id = ""
-main = "src/worker.js"
-site = { bucket = "public" }
+compatibility_date = "2024-01-01"
 
-# Cloudflare Pages project configuration
+# Cloudflare Pages: static frontend served from public/
 pages_build_output_dir = "public"
-
-# Environment variables
-[env.production]
-name = "war-of-spacex-prod"
-vars = { ENVIRONMENT = "production" }
-
-# Triggers
-[triggers]
-crons = []
