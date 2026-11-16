@@ -448,6 +448,7 @@ class Game {
             if (code === 'KeyV') this.toggleCameraView();
             if (code === 'KeyU') this.toggleUpgradeModal();
             if (code === 'KeyM') this.toggleAudio();
+            if (code === 'Escape') this.showTeamSwitchUI();
         });
 
         window.addEventListener('keyup', (e) => {
@@ -477,6 +478,7 @@ class Game {
         });
         document.getElementById('restart-btn')?.addEventListener('click', () => this.restartGame());
         document.getElementById('victory-restart-btn')?.addEventListener('click', () => this.continueEndless());
+        document.getElementById('resume-btn')?.addEventListener('click', () => document.getElementById('pause-screen').classList.add('hidden'));
         document.getElementById('pause-switch-defense-btn')?.addEventListener('click', () => this.switchTeam('DEFENSE'));
         document.getElementById('pause-switch-attack-btn')?.addEventListener('click', () => this.switchTeam('ATTACK'));
         document.getElementById('open-upgrade-btn')?.addEventListener('click', () => this.toggleUpgradeModal(true));
@@ -744,13 +746,19 @@ class Game {
         }
     }
 
-    // Switch Faction (Attack <-> Defense) during pause
+    // Show team switch UI without pausing the game
+    showTeamSwitchUI() {
+        if (this.state === 'PLAYING') {
+            this.updatePauseTeamUI();
+            document.getElementById('pause-screen').classList.remove('hidden');
+        } else if (this.state !== 'START' && document.getElementById('pause-screen').classList.contains('hidden') === false) {
+            document.getElementById('pause-screen').classList.add('hidden');
+        }
+    }
+
+    // Switch Faction (Attack <-> Defense)
     switchTeam(team) {
         if (!team || team === this.playerTeam) return;
-        if (this.state !== 'PAUSED') {
-            this.showCombatBanner('일시 정지 상태에서만 진영을 전환할 수 있습니다. (P 키)');
-            return;
-        }
 
         const prevTeam = this.playerTeam;
         this.setupPlayerShip(team);
