@@ -447,7 +447,7 @@ class Game {
             if (code === 'KeyX') this.triggerEMP();
             if (code === 'KeyV') this.toggleCameraView();
             if (code === 'KeyU') this.toggleUpgradeModal();
-            if (code === 'KeyP' || code === 'Escape') this.togglePause();
+            if (code === 'KeyP') this.togglePause();
             if (code === 'KeyM') this.toggleAudio();
         });
 
@@ -750,7 +750,7 @@ class Game {
     switchTeam(team) {
         if (!team || team === this.playerTeam) return;
         if (this.state !== 'PAUSED') {
-            this.showCombatBanner('일시 정지 상태에서만 진영을 전환할 수 있습니다. (ESC)');
+            this.showCombatBanner('일시 정지 상태에서만 진영을 전환할 수 있습니다. (P 키)');
             return;
         }
 
