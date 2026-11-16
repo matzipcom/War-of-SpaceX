@@ -10,6 +10,14 @@ const TRANSLATIONS = {
         'callsign': 'CALLSIGN:',
         'online_ready': '🟢 Online Combat Ready',
         'settings': '⚙️ Settings',
+
+        // Room Code
+        'room_code': '🔑 ROOM CODE:',
+        'create_room': '🎲 CREATE ROOM',
+        'copy_code': '📋 COPY',
+        'room_hint': '💡 Create a room & share the code with a friend, or leave it empty for a public match.',
+        'room_created': '✅ Room code [{code}] created! Share it with your friend and pick a faction.',
+        'code_copied': '📋 Room code [{code}] copied to clipboard! Send it to your friend.',
         
         // Faction Cards
         'defense_faction': '🛡️ DEFENSE',
@@ -26,7 +34,7 @@ const TRANSLATIONS = {
         'attack_weapons': 'Heavy Disruption Laser [Left-Click]\nSiege Explosive Torpedo [Right-Click / F]\nData Core Hacking & Shield Siphon [R Key]\nCluster Bomb Cluster Spread [X Key]',
         'attack_btn': 'ATTACK BASE',
         
-        'online_guide': '💡 Multiplayer Guide: Open 2 browser tabs or have another player join. Select different teams to engage in real-time 3D dogfight and base warfare!',
+        'online_guide': '💡 Multiplayer Guide: Create a room and share the code with a friend to play in a private match, or leave the code empty for a public battle. Select different teams for real-time 3D dogfights!',
         
         // HUD
         'base_status': '🛰️ X Orbital Data Center (BASE)',
@@ -73,6 +81,14 @@ const TRANSLATIONS = {
         'callsign': '콜사인:',
         'online_ready': '🟢 온라인 대전 준비 완료',
         'settings': '⚙️ 설정',
+
+        // Room Code
+        'room_code': '🔑 방 코드:',
+        'create_room': '🎲 방 만들기',
+        'copy_code': '📋 복사',
+        'room_hint': '💡 방을 만들어 친구에게 코드를 공유하거나, 비워두면 공개 매치에 참가합니다.',
+        'room_created': '✅ 방 코드 [{code}] 생성 완료! 친구에게 공유한 뒤 진영을 선택하세요.',
+        'code_copied': '📋 방 코드 [{code}] 복사 완료! 친구에게 전달하세요.',
         
         // Faction Cards
         'defense_faction': '🛡️ 수비팀',
@@ -89,7 +105,7 @@ const TRANSLATIONS = {
         'attack_weapons': '대구경 헤비 디스럽터 레이저 [좌클릭]\n공성 대형 폭발 어뢰 발사 [우클릭 / F]\n데이터 코어 해킹 및 쉴드 흡수 [R 키]\n클러스터 폭발탄 광역 살포 [X 키]',
         'attack_btn': '공격팀 침공',
         
-        'online_guide': '💡 온라인 멀티플레이 안내: 브라우저 탭을 2개 열거나 다른 플레이어가 접속하여 각각 선택하면 실시간 3D 도그파이트 및 기지 공방전이 진행됩니다!',
+        'online_guide': '💡 온라인 멀티플레이 안내: 방을 만들어 친구에게 코드를 공유하면 둘만의 비공개 매치가, 코드를 비워두면 공개 매치가 진행됩니다. 서로 다른 진영을 선택해 실시간 3D 공중전을 즐기세요!',
         
         // HUD
         'base_status': '🛰️ X 우주 데이터센터',
@@ -135,6 +151,12 @@ const TRANSLATIONS = {
         'callsign': 'コールサイン:',
         'online_ready': '🟢 オンライン戦闘準備完了',
         'settings': '⚙️ 設定',
+        'room_code': '🔑 ルームコード:',
+        'create_room': '🎲 ルーム作成',
+        'copy_code': '📋 コピー',
+        'room_hint': '💡 ルームを作成して友達にコードを共有、または空欄で公開マッチに参加します。',
+        'room_created': '✅ ルームコード [{code}] を作成しました！友達に共有して陣営を選択してください。',
+        'code_copied': '📋 ルームコード [{code}] をコピーしました！友達に送ってください。',
         'defense_faction': '🛡️ ディフェンス',
         'defense_title': 'マスクのSpaceX防御軍',
         'attack_faction': '⚔️ アタック',
@@ -164,6 +186,12 @@ const TRANSLATIONS = {
         'callsign': '呼号:',
         'online_ready': '🟢 在线战斗就绪',
         'settings': '⚙️ 设置',
+        'room_code': '🔑 房间代码:',
+        'create_room': '🎲 创建房间',
+        'copy_code': '📋 复制',
+        'room_hint': '💡 创建房间并把代码分享给朋友，留空则加入公开对战。',
+        'room_created': '✅ 房间代码 [{code}] 已创建！分享给朋友后选择阵营。',
+        'code_copied': '📋 房间代码 [{code}] 已复制！发送给你的朋友吧。',
         'defense_faction': '🛡️ 防守队',
         'defense_title': '马斯克的SpaceX防御军',
         'attack_faction': '⚔️ 进攻队',
@@ -517,12 +545,21 @@ class Game {
         document.getElementById('start-btn')?.addEventListener('click', () => this.startGame('DEFENSE'));
         document.getElementById('join-defense-btn')?.addEventListener('click', () => {
             const callsign = document.getElementById('player-callsign')?.value || 'SpaceX-Pilot';
-            this.startGame('DEFENSE', callsign);
+            this.startGame('DEFENSE', callsign, this.getRoomCodeInput());
         });
         document.getElementById('join-attack-btn')?.addEventListener('click', () => {
             const callsign = document.getElementById('player-callsign')?.value || 'Void-Raider';
-            this.startGame('ATTACK', callsign);
+            this.startGame('ATTACK', callsign, this.getRoomCodeInput());
         });
+        document.getElementById('create-room-btn')?.addEventListener('click', () => this.createRoomCode());
+        document.getElementById('copy-room-btn')?.addEventListener('click', () => this.copyRoomCode());
+
+        // Pre-fill room code from URL (?room=CODE) so friends can join via shared link
+        const urlRoom = new URLSearchParams(window.location.search).get('room');
+        if (urlRoom) {
+            const roomInput = document.getElementById('room-code-input');
+            if (roomInput) roomInput.value = urlRoom.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+        }
         document.getElementById('restart-btn')?.addEventListener('click', () => this.restartGame());
         document.getElementById('victory-restart-btn')?.addEventListener('click', () => this.continueEndless());
         // Reloading returns to the main menu with a clean connection; gold and shop levels persist in localStorage
@@ -687,8 +724,42 @@ class Game {
         }
     }
 
+    // ----- Room Code Helpers (share a code with a friend to play in the same room) -----
+    getRoomCodeInput() {
+        const input = document.getElementById('room-code-input');
+        return input ? input.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8) : '';
+    }
+
+    createRoomCode() {
+        // Generate a 6-character code without easily-confused characters (0/O, 1/I/L)
+        const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for (let i = 0; i < 6; i++) {
+            code += chars[Math.floor(Math.random() * chars.length)];
+        }
+        const input = document.getElementById('room-code-input');
+        if (input) input.value = code;
+
+        const hint = document.getElementById('room-code-hint');
+        if (hint) hint.innerText = t('room_created').replace('{code}', code);
+        this.copyRoomCode(true);
+    }
+
+    copyRoomCode(silentFail = false) {
+        const code = this.getRoomCodeInput();
+        if (!code) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(code).then(() => {
+                const hint = document.getElementById('room-code-hint');
+                if (hint) hint.innerText = t('code_copied').replace('{code}', code);
+            }).catch(() => {
+                if (!silentFail) console.warn('Clipboard copy failed.');
+            });
+        }
+    }
+
     // Start Game from Menu with selected Faction
-    startGame(team = 'DEFENSE', callsign = 'Pilot-X') {
+    startGame(team = 'DEFENSE', callsign = 'Pilot-X', roomCode = '') {
         if (window.soundFX) window.soundFX.init();
         
         // Stop polling when game starts
@@ -704,7 +775,7 @@ class Game {
         this.sessionTime = this.sessionMaxTime; // Reset 5-minute timer
 
         this.setupPlayerShip(team);
-        this.network.connect(team, callsign);
+        this.network.connect(team, callsign, roomCode);
 
         const repairBtn = document.getElementById('repair-action-btn');
         const missileText = document.getElementById('missile-count-text');

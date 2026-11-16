@@ -31,6 +31,17 @@
                 <span id="server-status-pill" style="font-size: 12px; color: #00ff88; border: 1px solid #00ff88; padding: 4px 10px; border-radius: 12px; background: rgba(0, 255, 136, 0.1);" data-i18n="online_ready">🟢 Online Combat Ready</span>
             </div>
 
+            <!-- Room Code: create a room and share the code with a friend to play together -->
+            <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <label style="font-family: 'Orbitron'; font-weight: 700; color: #ffdd44; font-size: 14px;" data-i18n="room_code">🔑 ROOM CODE:</label>
+                <input type="text" id="room-code-input" value="" maxlength="8" placeholder="EX) AB12CD" style="background: rgba(60, 45, 0, 0.5); border: 1px solid #ffdd44; color: #fff; font-family: 'Orbitron'; font-size: 15px; padding: 6px 14px; border-radius: 4px; outline: none; width: 150px; text-align: center; text-transform: uppercase;">
+                <button id="create-room-btn" class="sci-btn" style="font-size: 12px; padding: 6px 14px;" data-i18n="create_room">🎲 CREATE ROOM</button>
+                <button id="copy-room-btn" class="sci-btn" style="font-size: 12px; padding: 6px 14px;" data-i18n="copy_code">📋 COPY</button>
+            </div>
+            <div id="room-code-hint" style="margin-bottom: 15px; text-align: center; font-size: 12px; color: #ffdd88; font-family: 'Orbitron';" data-i18n="room_hint">
+                💡 Create a room & share the code with a friend, or leave it empty for a public match.
+            </div>
+
             <!-- Online Players Counter -->
             <div style="margin-bottom: 15px; text-align: center; font-size: 12px; color: #00ff88; font-family: 'Orbitron';">
                 👥 Online Players: <span id="online-player-total">0</span> | 
@@ -80,7 +91,7 @@
             </div>
 
             <div class="story-box" style="margin-top: 15px; font-size: 13px; line-height: 1.5;" data-i18n="online_guide">
-                💡 Multiplayer Guide: Open 2 browser tabs or have another player join. Select different teams to engage in real-time 3D dogfight and base warfare!
+                💡 Multiplayer Guide: Create a room and share the code with a friend to play in a private match, or leave the code empty for a public battle. Select different teams for real-time 3D dogfights!
             </div>
         </div>
     </div>
@@ -112,6 +123,7 @@
             <div class="wave-banner glass-panel">
                 <span id="wave-display">PVP MATCH</span>
             </div>
+            <div id="room-code-display" class="glass-panel hidden" style="margin-top: 8px; font-size: 12px; color: #ffdd44; font-family: 'Orbitron'; padding: 6px 10px; text-align: center;">🔑 방 코드: -</div>
             <div class="timer-display glass-panel" style="margin-top: 8px; font-size: 12px; color: #ffdd44;">남은 시간: <span id="timer-display">300s</span></div>
             <div class="radar-wrapper">
                 <canvas id="radar-canvas" width="150" height="150"></canvas>

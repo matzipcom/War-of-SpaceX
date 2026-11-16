@@ -8,15 +8,17 @@ class NetworkManager {
         this.connected = false;
         this.playerId = null;
         this.myTeam = 'DEFENSE'; // 'DEFENSE' or 'ATTACK'
+        this.roomCode = ''; // empty = public match; share a code to play with friends
         this.remotePlayers = new Map(); // id -> { mesh, targetPos, targetQuat, name, team, hull, shield }
 
         this.sendMoveTimer = 0;
         this.sendMoveInterval = 1 / 30; // 30Hz network sync
     }
 
-    connect(selectedTeam, playerName) {
+    connect(selectedTeam, playerName, roomCode) {
         this.myTeam = selectedTeam;
         this.playerName = playerName || (selectedTeam === 'DEFENSE' ? 'SpaceX-Pilot' : 'Void-Raider');
+        this.roomCode = (roomCode || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
 
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const host = window.location.host;
@@ -32,7 +34,8 @@ class NetworkManager {
                 this.send({
                     type: 'JOIN',
                     team: this.myTeam,
-                    name: this.playerName
+                    name: this.playerName,
+                    room: this.roomCode
                 });
             };
 
@@ -71,7 +74,11 @@ class NetworkManager {
             case 'INIT': {
                 this.playerId = msg.id;
                 this.myTeam = msg.team;
-                console.log(`[Multiplayer] Joined as ${this.playerId} on Team ${this.myTeam}`);
+                if (msg.room) this.roomCode = msg.room;
+                console.log(`[Multiplayer] Joined as ${this.playerId} on Team ${this.myTeam} in Room [${this.roomCode}]`);
+
+                // Show the current room code on the HUD so it can be shared with friends
+                this.updateRoomDisplay();
 
                 // Synchronize Data Center Base Stats
                 if (msg.baseStats) {
@@ -355,6 +362,18 @@ class NetworkManager {
             origin: { x: origin.x, y: origin.y, z: origin.z },
             radius: radius
         });
+    }
+
+    updateRoomDisplay() {
+        const roomEl = document.getElementById('room-code-display');
+        if (roomEl) {
+            const isPublic = !this.roomCode || this.roomCode === 'PUBLIC';
+            roomEl.textContent = isPublic ? '🌐 공개 매치 (PUBLIC)' : `🔑 방 코드: ${this.roomCode}`;
+            roomEl.classList.remove('hidden');
+        }
+        if (this.roomCode && this.roomCode !== 'PUBLIC') {
+            this.game.showCombatBanner(`🔑 방 [${this.roomCode}] 입장 완료! 친구에게 이 코드를 공유하세요.`);
+        }
     }
 
     updatePlayerCountsUI(data) {
