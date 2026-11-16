@@ -924,6 +924,8 @@ class Game {
 
     // Poll server for current player counts
     pollPlayerCounts() {
+        // Skip with an external server: each poll would spin up a room on the free plan
+        if (window.WS_SERVER_URL) return;
         // Create a temporary WebSocket just to get initial player counts
         try {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';

@@ -1,40 +1,25 @@
-// War of SpaceX - Cloudflare Workers Backend
-// Handles WebSocket connections and game state management
+// War of SpaceX - Cloudflare Worker (free plan, SQLite-backed Durable Objects)
+// Routes each WebSocket connection to the Durable Object of its room code.
 
-import { GameServer } from './gameServer.js';
+import { GameRoom } from './gameServer.js';
+
+export { GameRoom };
+
+function sanitizeRoomCode(raw) {
+  const code = String(raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+  return code || 'PUBLIC';
+}
 
 export default {
   async fetch(request, env) {
-    // Upgrade to WebSocket
-    if (request.headers.get('Upgrade') === 'websocket') {
-      try {
-        const server = new GameServer(env);
-        return server.handleWebSocket(request);
-      } catch (error) {
-        console.error('WebSocket error:', error);
-        return new Response('WebSocket connection failed', { status: 400 });
-      }
+    if (request.headers.get('Upgrade') !== 'websocket') {
+      return new Response('War of SpaceX game server is running. Connect via WebSocket.', {
+        headers: { 'Content-Type': 'text/plain; charset=UTF-8' }
+      });
     }
 
-    // Serve static files from public directory
-    const url = new URL(request.url);
-    
-    // Route to Cloudflare Pages
-    if (request.method === 'GET') {
-      // Proxy to Pages
-      const origin = new URL(request.url);
-      origin.host = env.PAGES_URL || 'war-of-spacex.pages.dev';
-      
-      return fetch(new Request(origin, request));
-    }
-
-    return new Response('Not Found', { status: 404 });
-  },
-
-  // Durable Object binding
-  async ws(request, env) {
-    const id = env.GAME_SERVER.idFromName('game-server-1');
-    const gameServer = env.GAME_SERVER.get(id);
-    return gameServer.fetch(request);
+    const room = sanitizeRoomCode(new URL(request.url).searchParams.get('room'));
+    const stub = env.GAME_ROOM.get(env.GAME_ROOM.idFromName(room));
+    return stub.fetch(request);
   }
 };

@@ -21,8 +21,8 @@ class NetworkManager {
         this.roomCode = (roomCode || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
 
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = window.location.host;
-        const wsUrl = `${protocol}//${host}`;
+        const base = window.WS_SERVER_URL || `${protocol}//${window.location.host}`;
+        const wsUrl = `${base}/?room=${encodeURIComponent(this.roomCode || 'PUBLIC')}`;
 
         try {
             this.ws = new WebSocket(wsUrl);

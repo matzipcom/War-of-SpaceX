@@ -1,130 +1,174 @@
-// Game Server - Manages multiplayer game state and WebSocket connections
-// Uses Durable Objects for persistent game state
+// GameRoom Durable Object: one instance per room code.
+// Mirrors the protocol of server.js so the same client works with both backends.
 
-export class GameServer {
+const MAX_PLAYERS = 16;
+
+export class GameRoom {
   constructor(state, env) {
-    this.state = state;
-    this.env = env;
-    this.players = new Map();
-    this.baseStats = {
-      maxHull: 100000,
-      hull: 100000,
-      maxShield: 50000,
-      shield: 50000,
-      shieldRegenRate: 15,
-      shieldRegenDelay: 8,
-      lastHitTime: 0
-    };
-    this.connections = new Map();
+    this.players = new Map(); // WebSocket -> player
+    this.nextPlayerId = 1;
+    this.code = 'PUBLIC';
+    this.baseStats = this.freshBaseStats();
+    this.scores = { defense: 0, attack: 0 };
   }
 
-  // Handle WebSocket upgrade
+  freshBaseStats() {
+    return { maxHull: 1200, hull: 1200, maxShield: 600, shield: 600 };
+  }
+
   async fetch(request) {
     if (request.headers.get('Upgrade') !== 'websocket') {
-      return new Response('Expected Upgrade: websocket', { status: 400 });
+      return new Response('Expected Upgrade: websocket', { status: 426 });
     }
+    if (this.players.size >= MAX_PLAYERS) {
+      return new Response('Room is full', { status: 403 });
+    }
+
+    const raw = new URL(request.url).searchParams.get('room') || '';
+    this.code = raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8) || 'PUBLIC';
 
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair);
-
+    server.accept();
     this.handleSocket(server);
 
     return new Response(null, { status: 101, webSocket: client });
   }
 
   handleSocket(socket) {
-    const playerId = this.generatePlayerId();
-    let playerObj = null;
+    const player = {
+      id: 'player_' + this.nextPlayerId++,
+      team: 'DEFENSE',
+      name: 'Pilot',
+      pos: { x: 0, y: 30, z: 200 },
+      quat: { x: 0, y: 0, z: 0, w: 1 },
+      speed: 0,
+      hull: 100,
+      shield: 100,
+      joined: false
+    };
+    player.name = 'Pilot-' + player.id.slice(-3);
+    this.players.set(socket, player);
 
     socket.addEventListener('message', (event) => {
       try {
-        const msg = JSON.parse(event.data);
-        this.handleMessage(socket, playerObj, msg, (obj) => { playerObj = obj; });
+        this.handleMessage(socket, player, JSON.parse(event.data));
       } catch (e) {
-        console.error('Message parse error:', e);
+        console.error('Message error:', e && e.message);
       }
     });
 
-    socket.addEventListener('close', () => {
-      if (playerObj) {
-        this.players.delete(playerId);
-        this.broadcastToAll({
-          type: 'PLAYER_LEFT',
-          id: playerObj.id
-        });
+    const onClose = () => {
+      if (!this.players.delete(socket)) return;
+      if (player.joined) {
+        this.broadcast({ type: 'PLAYER_LEFT', id: player.id });
         this.broadcastPlayerCounts();
       }
-    });
-
-    socket.addEventListener('error', (error) => {
-      console.error('WebSocket error:', error);
-    });
-
-    this.connections.set(playerId, socket);
+      if (this.players.size === 0) {
+        this.baseStats = this.freshBaseStats();
+      }
+    };
+    socket.addEventListener('close', onClose);
+    socket.addEventListener('error', onClose);
   }
 
-  handleMessage(socket, playerObj, msg, setPlayer) {
+  send(socket, obj) {
+    try {
+      socket.send(JSON.stringify(obj));
+    } catch (e) {}
+  }
+
+  broadcast(obj, except = null) {
+    const frame = JSON.stringify(obj);
+    for (const [s, p] of this.players) {
+      if (s !== except && p.joined) {
+        try {
+          s.send(frame);
+        } catch (e) {}
+      }
+    }
+  }
+
+  broadcastPlayerCounts() {
+    let defense = 0;
+    let attack = 0;
+    let total = 0;
+    for (const [, p] of this.players) {
+      if (!p.joined) continue;
+      total++;
+      if (p.team === 'DEFENSE') defense++;
+      else attack++;
+    }
+    this.broadcast({ type: 'PLAYER_COUNTS', room: this.code, total, defense, attack });
+  }
+
+  publicInfo(p) {
+    return { id: p.id, team: p.team, name: p.name, pos: p.pos, quat: p.quat, hull: p.hull, shield: p.shield };
+  }
+
+  handleMessage(socket, player, msg) {
+    if (msg.type !== 'JOIN' && !player.joined) return;
+
     switch (msg.type) {
       case 'JOIN': {
-        const player = {
-          id: this.generatePlayerId(),
-          team: msg.team,
-          name: msg.name || 'Pilot-X',
-          pos: { x: msg.team === 'DEFENSE' ? 100 : -100, y: 50, z: msg.team === 'DEFENSE' ? 200 : -200 },
-          quat: { x: 0, y: 0, z: 0, w: 1 },
-          hull: msg.team === 'DEFENSE' ? 100 : 150,
-          shield: 100,
-          speed: 0
-        };
+        player.team = msg.team === 'ATTACK' ? 'ATTACK' : 'DEFENSE';
+        player.name = String(msg.name || player.name).slice(0, 16);
 
-        this.players.set(socket, player);
-        setPlayer(player);
+        if (player.team === 'DEFENSE') {
+          player.pos = { x: 0, y: 30, z: 220 };
+        } else {
+          const angle = Math.random() * Math.PI * 2;
+          player.pos = {
+            x: Math.cos(angle) * 750,
+            y: (Math.random() - 0.5) * 150,
+            z: Math.sin(angle) * 750
+          };
+        }
 
-        // Send init response
-        socket.send(JSON.stringify({
+        const existing = [];
+        for (const [, p] of this.players) {
+          if (p.joined && p.id !== player.id) existing.push(this.publicInfo(p));
+        }
+        player.joined = true;
+
+        this.send(socket, {
           type: 'INIT',
           id: player.id,
           team: player.team,
+          room: this.code,
+          pos: player.pos,
           baseStats: this.baseStats,
-          players: Array.from(this.players.values())
-        }));
-
-        // Notify others
-        this.broadcastToAll({
-          type: 'PLAYER_JOINED',
-          player: player
-        }, socket);
-
+          scores: this.scores,
+          players: existing
+        });
+        this.broadcast({ type: 'PLAYER_JOINED', player: this.publicInfo(player) }, socket);
         this.broadcastPlayerCounts();
         break;
       }
 
       case 'MOVE': {
-        if (!playerObj) return;
-        playerObj.pos = msg.pos;
-        playerObj.quat = msg.quat;
-        playerObj.speed = msg.speed;
-        playerObj.hull = msg.hull;
-        playerObj.shield = msg.shield;
-
-        this.broadcastToAll({
+        player.pos = msg.pos;
+        player.quat = msg.quat;
+        player.speed = msg.speed;
+        player.hull = msg.hull;
+        player.shield = msg.shield;
+        this.broadcast({
           type: 'PLAYER_MOVED',
-          id: playerObj.id,
-          pos: msg.pos,
-          quat: msg.quat,
-          speed: msg.speed,
-          hull: msg.hull,
-          shield: msg.shield
+          id: player.id,
+          pos: player.pos,
+          quat: player.quat,
+          speed: player.speed,
+          hull: player.hull,
+          shield: player.shield
         }, socket);
         break;
       }
 
       case 'FIRE_LASER': {
-        if (!playerObj) return;
-        this.broadcastToAll({
+        this.broadcast({
           type: 'FIRE_LASER',
-          id: playerObj.id,
-          team: playerObj.team,
+          id: player.id,
+          team: player.team,
           origin: msg.origin,
           dir: msg.dir,
           damage: msg.damage
@@ -133,116 +177,72 @@ export class GameServer {
       }
 
       case 'FIRE_MISSILE': {
-        if (!playerObj) return;
-        this.broadcastToAll({
+        this.broadcast({
           type: 'FIRE_MISSILE',
-          id: playerObj.id,
-          team: playerObj.team,
+          id: player.id,
+          team: player.team,
           origin: msg.origin,
           dir: msg.dir,
-          isTorpedo: msg.isTorpedo,
+          isTorpedo: !!msg.isTorpedo,
+          targetPos: msg.targetPos,
           damage: msg.damage
         }, socket);
         break;
       }
 
       case 'DAMAGE_BASE': {
-        if (!playerObj) return;
-        this.baseStats.hull -= msg.damage || 0;
-        this.baseStats.lastHitTime = Date.now();
-
-        this.broadcastToAll({
-          type: 'BASE_UPDATE',
-          baseStats: this.baseStats,
-          attackerId: playerObj.id
-        });
+        const dmg = Math.min(250, msg.amount || 20);
+        if (this.baseStats.shield > 0) {
+          this.baseStats.shield = Math.max(0, this.baseStats.shield - dmg);
+        } else {
+          this.baseStats.hull = Math.max(0, this.baseStats.hull - dmg);
+        }
+        this.broadcast({ type: 'BASE_UPDATE', baseStats: this.baseStats, attackerId: player.id });
 
         if (this.baseStats.hull <= 0) {
-          this.broadcastToAll({
+          this.broadcast({
             type: 'GAME_OVER',
             winner: 'ATTACK',
-            reason: 'Musk Space Data Center destroyed!'
+            reason: '머스크 우주 데이터센터가 공격팀에 의해 완전 폭파되었습니다!'
           });
+          this.baseStats = this.freshBaseStats();
         }
         break;
       }
 
       case 'REPAIR_BASE': {
-        if (!playerObj) return;
         const heal = Math.min(50, msg.amount || 15);
         this.baseStats.hull = Math.min(this.baseStats.maxHull, this.baseStats.hull + heal);
+        this.broadcast({ type: 'BASE_UPDATE', baseStats: this.baseStats, healerId: player.id });
+        break;
+      }
 
-        this.broadcastToAll({
-          type: 'BASE_UPDATE',
-          baseStats: this.baseStats,
-          healerId: playerObj.id
+      case 'HIT_PLAYER': {
+        this.broadcast({
+          type: 'PLAYER_HIT',
+          targetId: msg.targetId,
+          damage: msg.damage,
+          attackerId: player.id
         });
         break;
       }
 
-      case 'PLAYER_HIT': {
-        this.broadcastToAll({
-          type: 'PLAYER_HIT',
-          targetId: msg.targetId,
-          damage: msg.damage,
-          attackerId: playerObj?.id
-        });
+      case 'PLAYER_KILLED': {
+        if (msg.killerId && msg.killerId !== player.id) {
+          this.broadcast({ type: 'KILL_CREDIT', killerId: msg.killerId, victimId: player.id });
+        }
         break;
       }
 
       case 'EMP_BLAST': {
-        if (!playerObj) return;
-        this.broadcastToAll({
+        this.broadcast({
           type: 'EMP_BLAST',
           origin: msg.origin,
-          radius: msg.radius,
-          playerId: playerObj.id
-        });
+          radius: msg.radius || 600,
+          team: player.team
+        }, socket);
         break;
       }
     }
-  }
-
-  broadcastToAll(msg, excludeSocket = null) {
-    const data = JSON.stringify(msg);
-    for (const [id, socket] of this.connections) {
-      if (socket !== excludeSocket && socket.readyState === WebSocket.OPEN) {
-        socket.send(data);
-      }
-    }
-  }
-
-  broadcastPlayerCounts() {
-    let defenseCount = 0;
-    let attackCount = 0;
-
-    for (const player of this.players.values()) {
-      if (player.team === 'DEFENSE') defenseCount++;
-      else if (player.team === 'ATTACK') attackCount++;
-    }
-
-    this.broadcastToAll({
-      type: 'PLAYER_COUNTS',
-      total: this.players.size,
-      defense: defenseCount,
-      attack: attackCount
-    });
-  }
-
-  generatePlayerId() {
-    return 'player-' + Math.random().toString(36).substr(2, 9);
-  }
-}
-
-// Durable Object export
-export class GameServerDurable {
-  constructor(state, env) {
-    this.state = state;
-    this.env = env;
-    this.gameServer = new GameServer(state, env);
-  }
-
-  async fetch(request) {
-    return this.gameServer.fetch(request);
   }
 }

@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "wrangler pages dev public",
     "deploy": "wrangler pages deploy public",
+    "deploy:server": "wrangler deploy -c wrangler.worker.toml",
+    "dev:server": "wrangler dev -c wrangler.worker.toml --port 8787",
     "build": "echo 'No build step: static files are served from public/'"
   },
   "dependencies": {},
