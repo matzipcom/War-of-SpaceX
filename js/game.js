@@ -447,7 +447,6 @@ class Game {
             if (code === 'KeyX') this.triggerEMP();
             if (code === 'KeyV') this.toggleCameraView();
             if (code === 'KeyU') this.toggleUpgradeModal();
-            if (code === 'KeyP') this.togglePause();
             if (code === 'KeyM') this.toggleAudio();
         });
 
@@ -478,7 +477,6 @@ class Game {
         });
         document.getElementById('restart-btn')?.addEventListener('click', () => this.restartGame());
         document.getElementById('victory-restart-btn')?.addEventListener('click', () => this.continueEndless());
-        document.getElementById('resume-btn')?.addEventListener('click', () => this.togglePause());
         document.getElementById('pause-switch-defense-btn')?.addEventListener('click', () => this.switchTeam('DEFENSE'));
         document.getElementById('pause-switch-attack-btn')?.addEventListener('click', () => this.switchTeam('ATTACK'));
         document.getElementById('open-upgrade-btn')?.addEventListener('click', () => this.toggleUpgradeModal(true));
