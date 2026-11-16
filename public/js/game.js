@@ -924,6 +924,8 @@ class Game {
 
     // Poll server for current player counts
     pollPlayerCounts() {
+        // Lobby counts need a game server on this host; skip for P2P/external servers
+        if (window.WS_SERVER_URL || window.MULTIPLAYER_MODE === 'p2p') return;
         // Create a temporary WebSocket just to get initial player counts
         try {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
