@@ -1,6 +1,144 @@
 // Core Game Engine for War of SpaceX
 // Complete 3D Space Flight, Base Defense, Combat, and Repair Mechanics
 
+// Global Translation Dictionary
+const TRANSLATIONS = {
+    en: {
+        // Start Screen
+        'title': 'WAR OF SPACEX',
+        'subtitle': 'ORBITAL MULTIPLAYER COMBAT: FACTION SELECTION',
+        'callsign': 'CALLSIGN:',
+        'online_ready': '🟢 Online Combat Ready',
+        'settings': '⚙️ Settings',
+        
+        // Faction Cards
+        'defense_faction': '🛡️ DEFENSE',
+        'defense_title': 'SpaceX Defense Forces',
+        'defense_objective': 'Mission: Protect & Repair Orbital Data Center',
+        'defense_ship': 'Aircraft: CyberHawk Mk-IX Fighter',
+        'defense_weapons': 'Twin High-Speed Plasma Lasers [Left-Click]\nHoming Micro-Missile Interceptor [Right-Click / F]\nNanobot Base Repair Beam [R Key]\nEMP Torpedo Disrupt Shockwave [X Key]',
+        'defense_btn': 'DEFEND BASE',
+        
+        'attack_faction': '⚔️ ATTACK',
+        'attack_title': 'Syndicate Assault Fleet',
+        'attack_objective': 'Mission: Destroy Musk\'s Orbital Data Center',
+        'attack_ship': 'Aircraft: Void Siege Bomber',
+        'attack_weapons': 'Heavy Disruption Laser [Left-Click]\nSiege Explosive Torpedo [Right-Click / F]\nData Core Hacking & Shield Siphon [R Key]\nCluster Bomb Cluster Spread [X Key]',
+        'attack_btn': 'ATTACK BASE',
+        
+        'online_guide': '💡 Multiplayer Guide: Open 2 browser tabs or have another player join. Select different teams to engage in real-time 3D dogfight and base warfare!',
+        
+        // HUD
+        'base_status': '🛰️ X Orbital Data Center (BASE)',
+        'distance': 'Distance:',
+        'hull': 'HULL:',
+        'shield': 'SHIELD:',
+        
+        // Game Over
+        'game_over': 'GAME OVER',
+        'victory': 'VICTORY',
+        
+        // Settings
+        'settings_title': '⚙️ SETTINGS',
+        'settings_subtitle': 'Game Environment & Control Settings',
+        'master_volume': '🔊 Master Volume',
+        'bgm_volume': '🎵 BGM Volume',
+        'sfx_volume': '💥 SFX Volume',
+        'language': '🌐 Language',
+        'controls': '⌨️ Control Settings',
+        'apply': 'APPLY',
+        
+        // Status Messages
+        'settings_applied': '⚙️ Settings applied!',
+        'language_changed': '🌐 Language changed to English.',
+    },
+    ko: {
+        // Start Screen
+        'title': 'WAR OF SPACEX',
+        'subtitle': '궤도 멀티플레이 전투: 진영 선택',
+        'callsign': '콜사인:',
+        'online_ready': '🟢 온라인 대전 준비 완료',
+        'settings': '⚙️ 설정',
+        
+        // Faction Cards
+        'defense_faction': '🛡️ 수비팀',
+        'defense_title': '머스크의 SpaceX 방어군',
+        'defense_objective': '목표: 우주 데이터센터 사수 및 긴급 수리',
+        'defense_ship': '비행선: CyberHawk Mk-IX 고기동 요격기',
+        'defense_weapons': '트윈 고속 플라즈마 레이저 [좌클릭]\n호밍 마이크로 미사일 요격 [우클릭 / F]\n나노봇 기지 수리 빔 가동 [R 키]\nEMP 어뢰 무력화 충격파 [X 키]',
+        'defense_btn': '수비팀 출격',
+        
+        'attack_faction': '⚔️ 공격팀',
+        'attack_title': '신디케이트 공습 함대',
+        'attack_objective': '목표: 머스크의 우주 데이터센터 폭파 파괴',
+        'attack_ship': '비행선: Void Siege Bomber 중장갑 공성기',
+        'attack_weapons': '대구경 헤비 디스럽터 레이저 [좌클릭]\n공성 대형 폭발 어뢰 발사 [우클릭 / F]\n데이터 코어 해킹 및 쉴드 흡수 [R 키]\n클러스터 폭발탄 광역 살포 [X 키]',
+        'attack_btn': '공격팀 침공',
+        
+        'online_guide': '💡 온라인 멀티플레이 안내: 브라우저 탭을 2개 열거나 다른 플레이어가 접속하여 각각 선택하면 실시간 3D 도그파이트 및 기지 공방전이 진행됩니다!',
+        
+        // HUD
+        'base_status': '🛰️ X 우주 데이터센터',
+        'distance': '거리:',
+        'hull': '선체:',
+        'shield': '쉴드:',
+        
+        // Game Over
+        'game_over': '게임 오버',
+        'victory': '승리',
+        
+        // Settings
+        'settings_title': '⚙️ 설정',
+        'settings_subtitle': '게임 환경 및 조작 설정',
+        'master_volume': '🔊 전체 볼륨',
+        'bgm_volume': '🎵 BGM 볼륨',
+        'sfx_volume': '💥 효과음 볼륨',
+        'language': '🌐 언어',
+        'controls': '⌨️ 조작 설정',
+        'apply': '확인',
+        
+        // Status Messages
+        'settings_applied': '⚙️ 설정이 적용되었습니다!',
+        'language_changed': '🌐 언어가 한국어로 변경되었습니다.',
+    },
+    ja: {
+        'title': 'WAR OF SPACEX',
+        'subtitle': '軌道マルチプレイ戦闘: 陣営選択',
+        'callsign': 'コールサイン:',
+        'online_ready': '🟢 オンライン戦闘準備完了',
+        'settings': '⚙️ 設定',
+        'defense_faction': '🛡️ ディフェンス',
+        'defense_title': 'マスクのSpaceX防御軍',
+        'attack_faction': '⚔️ アタック',
+        'attack_title': 'シンジケート襲撃艦隊',
+        'defense_btn': '防御開始',
+        'attack_btn': '攻撃開始',
+        'settings_title': '⚙️ 設定',
+        'language_changed': '🌐 言語が日本語に変更されました。',
+    },
+    zh: {
+        'title': 'WAR OF SPACEX',
+        'subtitle': '轨道多人对战：选择阵营',
+        'callsign': '呼号:',
+        'online_ready': '🟢 在线战斗就绪',
+        'settings': '⚙️ 设置',
+        'defense_faction': '🛡️ 防守队',
+        'defense_title': '马斯克的SpaceX防御军',
+        'attack_faction': '⚔️ 进攻队',
+        'attack_title': '辛迪加突击舰队',
+        'defense_btn': '防守基地',
+        'attack_btn': '进攻基地',
+        'settings_title': '⚙️ 设置',
+        'language_changed': '🌐 语言已更改为中文。',
+    }
+};
+
+// Helper function to get translated text
+function t(key, lang = null) {
+    const targetLang = lang || (window.game?.currentLanguage || 'en');
+    return TRANSLATIONS[targetLang]?.[key] || TRANSLATIONS['en']?.[key] || key;
+}
+
 class Game {
     constructor() {
         this.state = 'START'; // START, PLAYING, PAUSED, GAMEOVER, VICTORY
@@ -132,10 +270,39 @@ class Game {
         this.raycaster = new THREE.Raycaster();
         this.mouseNDC = new THREE.Vector2(0, 0);
 
+        // Server polling
+        this.serverPollingInterval = null;
+
+        // Language System
+        this.currentLanguage = localStorage.getItem('war-of-spacex-lang') || 'en';
+        this.initLanguage();
+
         // Setup
         this.initEntities();
         this.initEvents();
         this.initRadar();
+        
+        // Apply initial UI language
+        setTimeout(() => this.updateUILanguage(), 100);
+        
+        // Start server polling on start screen
+        this.startServerPolling();
+    }
+
+    // Initialize language system
+    initLanguage() {
+        // Set default language
+        if (this.currentLanguage === 'en') {
+            document.documentElement.lang = 'en';
+        } else if (this.currentLanguage === 'ko') {
+            document.documentElement.lang = 'ko';
+        } else if (this.currentLanguage === 'ja') {
+            document.documentElement.lang = 'ja';
+        } else if (this.currentLanguage === 'zh') {
+            document.documentElement.lang = 'zh';
+        }
+        
+        localStorage.setItem('war-of-spacex-lang', this.currentLanguage);
     }
 
     // Initialize 3D world entities
@@ -342,10 +509,14 @@ class Game {
             });
         });
 
-    // Toggle Camera View Mode
+        // Setup Upgrade Shop Click Handlers
+        this.initUpgradeShopUI();
+    }
+
+    // Toggle Camera View (V key)
     toggleCameraView() {
         this.cameraMode = (this.cameraMode === 'CHASE') ? 'COCKPIT' : 'CHASE';
-        this.showCombatBanner(this.cameraMode === 'COCKPIT' ? '조종석 1인칭 뷰 (COCKPIT CAM)' : '3인칭 추적 뷰 (CHASE CAM)');
+        this.showCombatBanner(this.cameraMode === 'COCKPIT' ? 'COCKPIT VIEW (1st Person)' : 'CHASE CAM (3rd Person)');
     }
 
     // Toggle Sound Mute
@@ -387,9 +558,20 @@ class Game {
             if (mvVal) mvVal.innerText = Math.round(sf.volume * 100) + '%';
             if (bvVal) bvVal.innerText = Math.round(sf.bgmVolume * 100) + '%';
             if (svVal) svVal.innerText = Math.round(sf.sfxVolume * 100) + '%';
+            
+            // Add real-time volume display listeners
+            if (mv) mv.addEventListener('input', (e) => {
+                if (mvVal) mvVal.innerText = e.target.value + '%';
+            });
+            if (bv) bv.addEventListener('input', (e) => {
+                if (bvVal) bvVal.innerText = e.target.value + '%';
+            });
+            if (sv) sv.addEventListener('input', (e) => {
+                if (svVal) svVal.innerText = e.target.value + '%';
+            });
         }
         const lang = document.getElementById('language-select');
-        if (lang) lang.value = this.currentLanguage || 'ko';
+        if (lang) lang.value = this.currentLanguage || 'en';
     }
 
     // Apply settings
@@ -406,15 +588,43 @@ class Game {
         const lang = document.getElementById('language-select');
         if (lang) this.setLanguage(lang.value);
         this.toggleSettingsModal(false);
-        this.showCombatBanner('⚙️ 설정이 적용되었습니다!');
+        this.showCombatBanner(t('settings_applied', this.currentLanguage));
     }
 
     // Set game language
     setLanguage(lang) {
         this.currentLanguage = lang;
         localStorage.setItem('war-of-spacex-lang', lang);
+        this.initLanguage();
+        
+        // Update UI elements based on language
+        this.updateUILanguage();
+        
         const langNames = { ko: '한국어', en: 'English', ja: '日本語', zh: '中文' };
-        this.showCombatBanner('🌐 언어가 ' + (langNames[lang] || lang) + '로 변경되었습니다.');
+        this.showCombatBanner(t('language_changed', lang));
+    }
+
+    // Update all UI text based on current language
+    updateUILanguage() {
+        const lang = this.currentLanguage;
+        
+        // Update HTML lang attribute
+        document.documentElement.lang = lang;
+        
+        // Update all elements with data-i18n attribute
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            const text = t(key, lang);
+            if (text && text !== key) {
+                el.textContent = text;
+            }
+        });
+        
+        // Update language selector value
+        const langSelect = document.getElementById('language-select');
+        if (langSelect) {
+            langSelect.value = lang;
+        }
     }
 
     // Radar Minimap Setup
@@ -428,6 +638,13 @@ class Game {
     // Start Game from Menu with selected Faction
     startGame(team = 'DEFENSE', callsign = 'Pilot-X') {
         if (window.soundFX) window.soundFX.init();
+        
+        // Stop polling when game starts
+        if (this.serverPollingInterval) {
+            clearInterval(this.serverPollingInterval);
+            this.serverPollingInterval = null;
+        }
+        
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('hud').classList.remove('hidden');
         this.state = 'PLAYING';
@@ -561,6 +778,55 @@ class Game {
         } else {
             statusEl.innerHTML = '⚔️ 현재 진영: 공격TEAM (ATTACK) | 💣 머스크 데이터센터 폭파';
             statusEl.style.color = '#ff3355';
+        }
+    }
+
+    // Start polling server for online player counts
+    startServerPolling() {
+        // Stop existing interval
+        if (this.serverPollingInterval) clearInterval(this.serverPollingInterval);
+
+        // Poll server for player counts every 2 seconds
+        this.serverPollingInterval = setInterval(() => {
+            if (this.state === 'START' && this.network && !this.network.connected) {
+                this.pollPlayerCounts();
+            }
+        }, 2000);
+    }
+
+    // Poll server for current player counts
+    pollPlayerCounts() {
+        // Create a temporary WebSocket just to get initial player counts
+        try {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const host = window.location.host;
+            const wsUrl = `${protocol}//${host}`;
+
+            const tempWs = new WebSocket(wsUrl);
+            tempWs.onmessage = (event) => {
+                try {
+                    const msg = JSON.parse(event.data);
+                    if (msg.type === 'PLAYER_COUNTS') {
+                        // Update UI with counts
+                        const totalEl = document.getElementById('online-player-total');
+                        const defenseEl = document.getElementById('online-defense-count');
+                        const attackEl = document.getElementById('online-attack-count');
+
+                        if (totalEl) totalEl.textContent = msg.total;
+                        if (defenseEl) defenseEl.textContent = msg.defense;
+                        if (attackEl) attackEl.textContent = msg.attack;
+                    }
+                } catch (e) {}
+            };
+
+            // Close after 1 second to avoid connection buildup
+            setTimeout(() => {
+                if (tempWs.readyState === WebSocket.OPEN) {
+                    tempWs.close();
+                }
+            }, 1000);
+        } catch (e) {
+            // Server not available, silently ignore
         }
     }
 
@@ -1908,6 +2174,8 @@ class Game {
             데이터센터 총 수리량: ${Math.round(this.totalRepairs)} HP<br>
             최종 스코어: ${this.score}
         `;
+        // Resume polling when game ends
+        this.startServerPolling();
     }
 
     // Victory Trigger (Cleared Wave 5 Boss!)
@@ -1923,6 +2191,8 @@ class Game {
             데이터센터 총 수리량: ${Math.round(this.totalRepairs)} HP<br>
             최종 스코어: ${this.score}
         `;
+        // Resume polling when game ends
+        this.startServerPolling();
     }
 
     // Main Game Loop (RequestAnimationFrame)

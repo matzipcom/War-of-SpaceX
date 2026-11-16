@@ -152,6 +152,11 @@ class NetworkManager {
                 }
                 break;
             }
+
+            case 'PLAYER_COUNTS': {
+                this.updatePlayerCountsUI(msg);
+                break;
+            }
         }
     }
 
@@ -343,6 +348,28 @@ class NetworkManager {
             origin: { x: origin.x, y: origin.y, z: origin.z },
             radius: radius
         });
+    }
+
+    updatePlayerCountsUI(data) {
+        // Update online player counter on start screen
+        const totalEl = document.getElementById('online-player-total');
+        const defenseEl = document.getElementById('online-defense-count');
+        const attackEl = document.getElementById('online-attack-count');
+
+        if (totalEl) totalEl.textContent = data.total;
+        if (defenseEl) defenseEl.textContent = data.defense;
+        if (attackEl) attackEl.textContent = data.attack;
+
+        // Also update in-game overlay if it exists
+        const inGameCounter = document.getElementById('in-game-player-counts');
+        if (inGameCounter) {
+            inGameCounter.innerHTML = `
+                <div style="font-size: 14px;">
+                    🛡️ Defense: <span style="color: #00f0ff;">${data.defense}</span> &nbsp;
+                    ⚔️ Attack: <span style="color: #ff1144;">${data.attack}</span>
+                </div>
+            `;
+        }
     }
 }
 

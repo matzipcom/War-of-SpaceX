@@ -140,6 +140,22 @@ function broadcast(obj, exceptSocket = null) {
     }
 }
 
+// Broadcast player counts to all clients
+function broadcastPlayerCounts() {
+    let defenseCount = 0;
+    let attackCount = 0;
+    for (const [, player] of gameState.players) {
+        if (player.team === 'DEFENSE') defenseCount++;
+        else if (player.team === 'ATTACK') attackCount++;
+    }
+    broadcast({
+        type: 'PLAYER_COUNTS',
+        total: gameState.players.size,
+        defense: defenseCount,
+        attack: attackCount
+    });
+}
+
 // 3. WebSocket Upgrade & Event Handlers
 server.on('upgrade', (req, socket) => {
     const key = req.headers['sec-websocket-key'];
@@ -206,6 +222,8 @@ server.on('upgrade', (req, socket) => {
             type: 'PLAYER_LEFT',
             id: playerObj.id
         });
+        // Update player counts when player leaves
+        broadcastPlayerCounts();
         console.log(`Player ${playerObj.id} (${playerObj.team}) disconnected. Total: ${gameState.players.size}`);
     });
 
@@ -274,6 +292,9 @@ function handlePlayerMessage(socket, player, msg) {
                     shield: player.shield
                 }
             }, socket);
+
+            // Send updated player counts to all clients
+            broadcastPlayerCounts();
 
             console.log(`Player ${player.id} joined team ${player.team} as "${player.name}"`);
             break;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -21,58 +21,65 @@
     <!-- 1. START / FACTION SELECTION SCREEN -->
     <div id="start-screen" class="overlay-screen">
         <div class="menu-card glass-panel" style="max-width: 960px;">
-            <h1 class="title-glow">WAR OF SPACEX</h1>
-            <div class="subtitle">ORBITAL MULTIPLAYER COMBAT: FACTION SELECTION</div>
+            <h1 class="title-glow" data-i18n="title">WAR OF SPACEX</h1>
+            <div class="subtitle" data-i18n="subtitle">ORBITAL MULTIPLAYER COMBAT: FACTION SELECTION</div>
 
             <!-- CallSign & Multiplayer Status -->
             <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 15px; align-items: center; flex-wrap: wrap;">
-                <label style="font-family: 'Orbitron'; font-weight: 700; color: #00ffff; font-size: 14px;">CALLSIGN:</label>
+                <label style="font-family: 'Orbitron'; font-weight: 700; color: #00ffff; font-size: 14px;" data-i18n="callsign">CALLSIGN:</label>
                 <input type="text" id="player-callsign" value="Pilot-X" maxlength="12" style="background: rgba(0, 30, 60, 0.7); border: 1px solid #00f0ff; color: #fff; font-family: 'Orbitron'; font-size: 15px; padding: 6px 14px; border-radius: 4px; outline: none; width: 170px; text-align: center;">
-                <span id="server-status-pill" style="font-size: 12px; color: #00ff88; border: 1px solid #00ff88; padding: 4px 10px; border-radius: 12px; background: rgba(0, 255, 136, 0.1);">🟢 온라인 대전 준비 완료</span>
+                <span id="server-status-pill" style="font-size: 12px; color: #00ff88; border: 1px solid #00ff88; padding: 4px 10px; border-radius: 12px; background: rgba(0, 255, 136, 0.1);" data-i18n="online_ready">🟢 Online Combat Ready</span>
+            </div>
+
+            <!-- Online Players Counter -->
+            <div style="margin-bottom: 15px; text-align: center; font-size: 12px; color: #00ff88; font-family: 'Orbitron';">
+                👥 Online Players: <span id="online-player-total">0</span> | 
+                🛡️ Defense: <span id="online-defense-count">0</span> | 
+                ⚔️ Attack: <span id="online-attack-count">0</span>
             </div>
 
             <!-- Settings Button -->
             <div style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
-                <button id="open-settings-btn" class="sci-btn" style="font-size: 13px; padding: 6px 16px;">⚙️ 설정 (Settings)</button>
+                <button id="open-settings-btn" class="sci-btn" style="font-size: 13px; padding: 6px 16px;" data-i18n="settings">⚙️ Settings</button>
             </div>
 
             <!-- Faction Selection Grid -->
             <div class="faction-grid">
                 <!-- DEFENSE FACTION CARD -->
                 <div class="faction-card defense-card">
-                    <div class="faction-badge">🛡️ 수비팀 (DEFENSE)</div>
-                    <h2 class="faction-title" style="color: #00f0ff;">머스크의 SpaceX 방어군</h2>
+                    <div class="faction-badge" data-i18n="defense_faction">🛡️ DEFENSE</div>
+                    <h2 class="faction-title" style="color: #00f0ff;" data-i18n="defense_title">SpaceX Defense Forces</h2>
                     <div class="faction-desc">
-                        <strong>목표:</strong> 우주 데이터센터 사수 및 긴급 수리<br>
-                        <strong>비행선:</strong> CyberHawk Mk-IX 고기동 요격기<br><br>
-                        <strong>무장 및 특수 능력:</strong><br>
-                        • 트윈 고속 플라즈마 레이저 [좌클릭]<br>
-                        • 호밍 마이크로 미사일 요격 [우클릭 / F]<br>
-                        • 나노봇 기지 수리 빔 가동 [R 키]<br>
-                        • EMP 어뢰 무력화 충격파 [X 키]
+                        <strong data-i18n-prefix="defense_objective_label">Objective:</strong> <span data-i18n="defense_objective">Protect & Repair Orbital Data Center</span><br>
+                        <strong data-i18n-prefix="defense_ship_label">Aircraft:</strong> <span data-i18n="defense_ship">CyberHawk Mk-IX Fighter</span><br><br>
+                        <strong>Weapons & Abilities:</strong><br>
+                        <span data-i18n="defense_weapons">• Twin High-Speed Plasma Lasers [Left-Click]
+• Homing Micro-Missile Interceptor [Right-Click / F]
+• Nanobot Base Repair Beam [R Key]
+• EMP Torpedo Disrupt Shockwave [X Key]</span>
                     </div>
-                    <button id="join-defense-btn" class="sci-btn faction-btn defense-btn">수비팀 출격 (DEFEND BASE)</button>
+                    <button id="join-defense-btn" class="sci-btn faction-btn defense-btn" data-i18n="defense_btn">DEFEND BASE</button>
                 </div>
 
                 <!-- ATTACK FACTION CARD -->
                 <div class="faction-card attack-card">
-                    <div class="faction-badge attack">⚔️ 공격팀 (ATTACK)</div>
-                    <h2 class="faction-title" style="color: #ff3355;">신디케이트 공습 함대</h2>
+                    <div class="faction-badge attack" data-i18n="attack_faction">⚔️ ATTACK</div>
+                    <h2 class="faction-title" style="color: #ff3355;" data-i18n="attack_title">Syndicate Assault Fleet</h2>
                     <div class="faction-desc">
-                        <strong>목표:</strong> 머스크의 우주 데이터센터 폭파 파괴<br>
-                        <strong>비행선:</strong> Void Siege Bomber 중장갑 공성기<br><br>
-                        <strong>무장 및 특수 능력:</strong><br>
-                        • 대구경 헤비 디스럽터 레이저 [좌클릭]<br>
-                        • 공성 대형 폭발 어뢰 발사 [우클릭 / F]<br>
-                        • 데이터 코어 해킹 및 쉴드 흡수 [R 키]<br>
-                        • 클러스터 폭발탄 광역 살포 [X 키]
+                        <strong data-i18n-prefix="attack_objective_label">Objective:</strong> <span data-i18n="attack_objective">Destroy Musk's Orbital Data Center</span><br>
+                        <strong data-i18n-prefix="attack_ship_label">Aircraft:</strong> <span data-i18n="attack_ship">Void Siege Bomber</span><br><br>
+                        <strong>Weapons & Abilities:</strong><br>
+                        <span data-i18n="attack_weapons">• Heavy Disruption Laser [Left-Click]
+• Siege Explosive Torpedo [Right-Click / F]
+• Data Core Hacking & Shield Siphon [R Key]
+• Cluster Bomb Cluster Spread [X Key]</span>
                     </div>
-                    <button id="join-attack-btn" class="sci-btn faction-btn attack-btn">공격팀 침공 (ATTACK BASE)</button>
+                    <button id="join-attack-btn" class="sci-btn faction-btn attack-btn" data-i18n="attack_btn">ATTACK BASE</button>
                 </div>
             </div>
 
-            <div class="story-box" style="margin-top: 15px; font-size: 13px; line-height: 1.5;">
-                💡 <strong>온라인 멀티플레이 안내:</strong> 브라우저 탭을 2개 열거나 다른 플레이어가 접속하여 각각 [수비팀]과 [공격팀]을 선택하면 실시간 3D 도그파이트 및 기지 공방전이 진행됩니다!
+            <div class="story-box" style="margin-top: 15px; font-size: 13px; line-height: 1.5;" data-i18n="online_guide">
+                💡 Multiplayer Guide: Open 2 browser tabs or have another player join. Select different teams to engage in real-time 3D dogfight and base warfare!
             </div>
         </div>
     </div>
@@ -359,13 +366,13 @@
     <!-- 7. SETTINGS MODAL -->
     <div id="settings-modal" class="overlay-screen hidden">
         <div class="menu-card glass-panel" style="max-width: 560px;">
-            <h2 class="title-glow" style="font-size: 26px;">⚙️ 설정 (SETTINGS)</h2>
-            <div class="subtitle">게임 환경 및 조작 설정</div>
+            <h2 class="title-glow" style="font-size: 26px;" data-i18n="settings_title">⚙️ SETTINGS</h2>
+            <div class="subtitle" data-i18n="settings_subtitle">Game Environment & Control Settings</div>
 
             <div style="margin: 20px 0;">
                 <!-- 볼륨 -->
                 <div style="margin-bottom: 18px;">
-                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;">🔊 전체 볼륨 (Master Volume)</div>
+                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;" data-i18n="master_volume">🔊 Master Volume</div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <input type="range" id="master-volume" min="0" max="100" value="80" style="flex: 1; accent-color: #00f0ff;">
                         <span id="master-volume-val" style="font-size: 12px; color: #ffdd44; width: 36px; text-align: right;">80%</span>
@@ -373,7 +380,7 @@
                 </div>
 
                 <div style="margin-bottom: 18px;">
-                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;">🎵 BGM 볼륨</div>
+                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;" data-i18n="bgm_volume">🎵 BGM Volume</div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <input type="range" id="bgm-volume" min="0" max="100" value="35" style="flex: 1; accent-color: #00f0ff;">
                         <span id="bgm-volume-val" style="font-size: 12px; color: #ffdd44; width: 36px; text-align: right;">35%</span>
@@ -381,7 +388,7 @@
                 </div>
 
                 <div style="margin-bottom: 18px;">
-                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;">💥 효과음 (SFX) 볼륨</div>
+                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;" data-i18n="sfx_volume">💥 SFX Volume</div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <input type="range" id="sfx-volume" min="0" max="100" value="90" style="flex: 1; accent-color: #00f0ff;">
                         <span id="sfx-volume-val" style="font-size: 12px; color: #ffdd44; width: 36px; text-align: right;">90%</span>
@@ -389,33 +396,33 @@
                 </div>
 
                 <div style="margin-bottom: 18px;">
-                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;">🌐 언어 (Language)</div>
+                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;" data-i18n="language">🌐 Language</div>
                     <select id="language-select" style="width: 100%; background: rgba(0, 30, 60, 0.7); border: 1px solid #00f0ff; color: #fff; font-family: 'Orbitron'; font-size: 14px; padding: 8px 12px; border-radius: 4px; outline: none;">
-                        <option value="ko">🇰🇷 한국어 (Korean)</option>
                         <option value="en">🇺🇸 English</option>
-                        <option value="ja">🇯🇵 日本語</option>
-                        <option value="zh">🇨🇳 中文</option>
+                        <option value="ko">🇰🇷 한국어 (Korean)</option>
+                        <option value="ja">🇯🇵 日本語 (Japanese)</option>
+                        <option value="zh">🇨🇳 中文 (Chinese)</option>
                     </select>
                 </div>
 
                 <div style="margin-bottom: 18px;">
-                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;">⌨️ 조작 설정 (Controls)</div>
+                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;" data-i18n="controls">⌨️ Controls</div>
                     <div style="font-size: 12px; color: #aaa; line-height: 1.6;">
-                        • <b style="color:#00f0ff;">W/S</b>: 엔진 가속/감속<br>
-                        • <b style="color:#00f0ff;">A/D</b>: 좌우 Strafe<br>
-                        • <b style="color:#00f0ff;">Shift</b>: 부스터 (Boost)<br>
-                        • <b style="color:#00f0ff;">Space</b>: 기본 레이저 발사<br>
-                        • <b style="color:#00f0ff;">좌클릭</b>: 주무장 레이저<br>
-                        • <b style="color:#00f0ff;">우클릭/F</b>: 미사일/어 lodged<br>
-                        • <b style="color:#00f0ff;">R</b>: 기지 상호작용<br>
-                        • <b style="color:#00f0ff;">X</b>: 특수 스킬<br>
-                        • <b style="color:#00f0ff;">V</b>: 시점 전환<br>
-                        • <b style="color:#00f0ff;">U</b>: 업그레이드 상점
+                        • <b style="color:#00f0ff;">W/S</b>: Engine Thrust Forward/Backward<br>
+                        • <b style="color:#00f0ff;">A/D</b>: Strafe Left/Right<br>
+                        • <b style="color:#00f0ff;">Shift</b>: Boost<br>
+                        • <b style="color:#00f0ff;">Space</b>: Fire Primary Laser<br>
+                        • <b style="color:#00f0ff;">Left-Click</b>: Main Weapon Laser<br>
+                        • <b style="color:#00f0ff;">Right-Click / F</b>: Launch Missile/Torpedo<br>
+                        • <b style="color:#00f0ff;">R</b>: Interact with Base<br>
+                        • <b style="color:#00f0ff;">X</b>: Special Ability<br>
+                        • <b style="color:#00f0ff;">V</b>: Switch Camera View<br>
+                        • <b style="color:#00f0ff;">U</b>: Upgrade Shop
                     </div>
                 </div>
             </div>
 
-            <button id="close-settings-btn" class="sci-btn" style="margin-top: 4px;">확인 (APPLY)</button>
+            <button id="close-settings-btn" class="sci-btn" style="margin-top: 4px;" data-i18n="apply">APPLY</button>
         </div>
     </div>
 
