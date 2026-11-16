@@ -13,6 +13,9 @@ class SoundFX {
         this.repairGain = null;
         this.thrusterOsc = null;
         this.thrusterGain = null;
+        this.volume = 0.8;        // 전체 볼륨
+        this.bgmVolume = 0.35;    // BGM 볼륨
+        this.sfxVolume = 0.9;     // SFX 볼륨
     }
 
     init() {
@@ -23,15 +26,15 @@ class SoundFX {
 
         // Master gains
         this.masterGain = this.ctx.createGain();
-        this.masterGain.gain.value = 0.8;
+        this.masterGain.gain.value = this.volume;
         this.masterGain.connect(this.ctx.destination);
 
         this.sfxGain = this.ctx.createGain();
-        this.sfxGain.gain.value = 0.9;
+        this.sfxGain.gain.value = this.sfxVolume;
         this.sfxGain.connect(this.masterGain);
 
         this.bgmGain = this.ctx.createGain();
-        this.bgmGain.gain.value = 0.35;
+        this.bgmGain.gain.value = this.bgmVolume;
         this.bgmGain.connect(this.masterGain);
 
         this.initContinuousThruster();
@@ -47,9 +50,34 @@ class SoundFX {
     toggleMute() {
         this.enabled = !this.enabled;
         if (this.masterGain) {
-            this.masterGain.gain.value = this.enabled ? 0.8 : 0;
+            this.masterGain.gain.value = this.enabled ? this.volume : 0;
         }
         return this.enabled;
+    }
+
+    setVolume(vol) {
+        this.volume = Math.max(0, Math.min(1, vol));
+        if (this.masterGain) {
+            this.masterGain.gain.value = this.enabled ? this.volume : 0;
+        }
+    }
+
+    setBGMVolume(vol) {
+        this.bgmVolume = Math.max(0, Math.min(1, vol));
+        if (this.bgmGain) {
+            this.bgmGain.gain.value = this.bgmVolume;
+        }
+    }
+
+    setSFXVolume(vol) {
+        this.sfxVolume = Math.max(0, Math.min(1, vol));
+        if (this.sfxGain) {
+            this.sfxGain.gain.value = this.sfxVolume;
+        }
+    }
+
+    getVolume() {
+        return this.volume;
     }
 
     // Player Dual Laser Shot

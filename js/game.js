@@ -330,9 +330,17 @@ class Game {
         document.getElementById('touch-boost')?.addEventListener('touchend', (e) => { e.preventDefault(); this.input.boost = false; });
         document.getElementById('touch-emp')?.addEventListener('touchstart', (e) => { e.preventDefault(); this.triggerEMP(); });
 
-        // Setup Upgrade Shop Click Handlers
-        this.initUpgradeShopUI();
-    }
+        document.getElementById('open-settings-btn')?.addEventListener('click', () => this.toggleSettingsModal(true));
+        document.getElementById('close-settings-btn')?.addEventListener('click', () => this.applySettings());
+        
+        // Volume sliders live update
+        ['master', 'bgm', 'sfx'].forEach(type => {
+            const el = document.getElementById(`${type}-volume`);
+            const valEl = document.getElementById(`${type}-volume-val`);
+            if (el) el.addEventListener('input', (e) => {
+                if (valEl) valEl.innerText = e.target.value + '%';
+            });
+        });
 
     // Toggle Camera View Mode
     toggleCameraView() {
@@ -346,6 +354,67 @@ class Game {
         const enabled = window.soundFX.toggleMute();
         const btn = document.getElementById('sound-toggle-btn');
         if (btn) btn.innerText = enabled ? '🔊 사운드 ON' : '🔇 사운드 OFF';
+    }
+
+    // Toggle Settings Modal
+    toggleSettingsModal(forceOpen = null) {
+        const modal = document.getElementById('settings-modal');
+        if (!modal) return;
+        const isOpen = !modal.classList.contains('hidden');
+        const shouldOpen = forceOpen !== null ? forceOpen : !isOpen;
+
+        if (shouldOpen) {
+            modal.classList.remove('hidden');
+            this.loadSettingsUI();
+        } else {
+            modal.classList.add('hidden');
+        }
+    }
+
+    // Load settings values into modal
+    loadSettingsUI() {
+        const sf = window.soundFX;
+        if (sf) {
+            const mv = document.getElementById('master-volume');
+            const bv = document.getElementById('bgm-volume');
+            const sv = document.getElementById('sfx-volume');
+            if (mv) mv.value = Math.round(sf.volume * 100);
+            if (bv) bv.value = Math.round(sf.bgmVolume * 100);
+            if (sv) sv.value = Math.round(sf.sfxVolume * 100);
+            const mvVal = document.getElementById('master-volume-val');
+            const bvVal = document.getElementById('bgm-volume-val');
+            const svVal = document.getElementById('sfx-volume-val');
+            if (mvVal) mvVal.innerText = Math.round(sf.volume * 100) + '%';
+            if (bvVal) bvVal.innerText = Math.round(sf.bgmVolume * 100) + '%';
+            if (svVal) svVal.innerText = Math.round(sf.sfxVolume * 100) + '%';
+        }
+        const lang = document.getElementById('language-select');
+        if (lang) lang.value = this.currentLanguage || 'ko';
+    }
+
+    // Apply settings
+    applySettings() {
+        const sf = window.soundFX;
+        if (sf) {
+            const mv = document.getElementById('master-volume');
+            const bv = document.getElementById('bgm-volume');
+            const sv = document.getElementById('sfx-volume');
+            if (mv) sf.setVolume(parseInt(mv.value) / 100);
+            if (bv) sf.setBGMVolume(parseInt(bv.value) / 100);
+            if (sv) sf.setSFXVolume(parseInt(sv.value) / 100);
+        }
+        const lang = document.getElementById('language-select');
+        if (lang) this.setLanguage(lang.value);
+        this.toggleSettingsModal(false);
+        this.showCombatBanner('⚙️ 설정이 적용되었습니다!');
+    }
+
+    // Set game language
+    setLanguage(lang) {
+        this.currentLanguage = lang;
+        localStorage.setItem('war-of-spacex-lang', lang);
+        const langNames = { ko: '한국어', en: 'English', ja: '日本語', zh: '中文' };
+        this.showCombatBanner('🌐 언어가 ' + (langNames[lang] || lang) + '로 변경되었습니다.');
     }
 
     // Radar Minimap Setup

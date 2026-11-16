@@ -31,6 +31,11 @@
                 <span id="server-status-pill" style="font-size: 12px; color: #00ff88; border: 1px solid #00ff88; padding: 4px 10px; border-radius: 12px; background: rgba(0, 255, 136, 0.1);">🟢 온라인 대전 준비 완료</span>
             </div>
 
+            <!-- Settings Button -->
+            <div style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
+                <button id="open-settings-btn" class="sci-btn" style="font-size: 13px; padding: 6px 16px;">⚙️ 설정 (Settings)</button>
+            </div>
+
             <!-- Faction Selection Grid -->
             <div class="faction-grid">
                 <!-- DEFENSE FACTION CARD -->
@@ -348,6 +353,69 @@
             <div class="subtitle" style="color: #88ffcc;">머스크 우주 데이터센터 수호 성공!</div>
             <div id="vic-stats" class="story-box" style="text-align: center; border-color: #00ff88;"></div>
             <button id="victory-restart-btn" class="sci-btn" style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.4), rgba(0, 150, 80, 0.6)); border-color: #00ff88;">무한 방어전 시작 (ENDLESS MODE)</button>
+        </div>
+    </div>
+
+    <!-- 7. SETTINGS MODAL -->
+    <div id="settings-modal" class="overlay-screen hidden">
+        <div class="menu-card glass-panel" style="max-width: 560px;">
+            <h2 class="title-glow" style="font-size: 26px;">⚙️ 설정 (SETTINGS)</h2>
+            <div class="subtitle">게임 환경 및 조작 설정</div>
+
+            <div style="margin: 20px 0;">
+                <!-- 볼륨 -->
+                <div style="margin-bottom: 18px;">
+                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;">🔊 전체 볼륨 (Master Volume)</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="range" id="master-volume" min="0" max="100" value="80" style="flex: 1; accent-color: #00f0ff;">
+                        <span id="master-volume-val" style="font-size: 12px; color: #ffdd44; width: 36px; text-align: right;">80%</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 18px;">
+                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;">🎵 BGM 볼륨</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="range" id="bgm-volume" min="0" max="100" value="35" style="flex: 1; accent-color: #00f0ff;">
+                        <span id="bgm-volume-val" style="font-size: 12px; color: #ffdd44; width: 36px; text-align: right;">35%</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 18px;">
+                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;">💥 효과음 (SFX) 볼륨</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="range" id="sfx-volume" min="0" max="100" value="90" style="flex: 1; accent-color: #00f0ff;">
+                        <span id="sfx-volume-val" style="font-size: 12px; color: #ffdd44; width: 36px; text-align: right;">90%</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 18px;">
+                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;">🌐 언어 (Language)</div>
+                    <select id="language-select" style="width: 100%; background: rgba(0, 30, 60, 0.7); border: 1px solid #00f0ff; color: #fff; font-family: 'Orbitron'; font-size: 14px; padding: 8px 12px; border-radius: 4px; outline: none;">
+                        <option value="ko">🇰🇷 한국어 (Korean)</option>
+                        <option value="en">🇺🇸 English</option>
+                        <option value="ja">🇯🇵 日本語</option>
+                        <option value="zh">🇨🇳 中文</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 18px;">
+                    <div style="font-family: 'Orbitron'; font-size: 13px; color: #00f0ff; margin-bottom: 6px;">⌨️ 조작 설정 (Controls)</div>
+                    <div style="font-size: 12px; color: #aaa; line-height: 1.6;">
+                        • <b style="color:#00f0ff;">W/S</b>: 엔진 가속/감속<br>
+                        • <b style="color:#00f0ff;">A/D</b>: 좌우 Strafe<br>
+                        • <b style="color:#00f0ff;">Shift</b>: 부스터 (Boost)<br>
+                        • <b style="color:#00f0ff;">Space</b>: 기본 레이저 발사<br>
+                        • <b style="color:#00f0ff;">좌클릭</b>: 주무장 레이저<br>
+                        • <b style="color:#00f0ff;">우클릭/F</b>: 미사일/어 lodged<br>
+                        • <b style="color:#00f0ff;">R</b>: 기지 상호작용<br>
+                        • <b style="color:#00f0ff;">X</b>: 특수 스킬<br>
+                        • <b style="color:#00f0ff;">V</b>: 시점 전환<br>
+                        • <b style="color:#00f0ff;">U</b>: 업그레이드 상점
+                    </div>
+                </div>
+            </div>
+
+            <button id="close-settings-btn" class="sci-btn" style="margin-top: 4px;">확인 (APPLY)</button>
         </div>
     </div>
 
