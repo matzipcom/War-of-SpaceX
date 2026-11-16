@@ -42,6 +42,8 @@ class Game {
         this.wave = 1;
         this.maxWave = 5;
         this.isWaveTransitioning = false;
+        this.sessionTime = 300; // 5 minutes
+        this.sessionMaxTime = 300;
         this.score = 0;
         this.credits = 0;
         this.enemiesDestroyed = 0;
@@ -361,6 +363,7 @@ class Game {
         document.getElementById('hud').classList.remove('hidden');
         this.state = 'PLAYING';
         this.clock.start();
+        this.sessionTime = this.sessionMaxTime; // Reset 5-minute timer
 
         this.setupPlayerShip(team);
         this.network.connect(team, callsign);
